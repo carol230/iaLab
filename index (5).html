@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Laboratorio de Prompts para el Estado · Ivonne Ayala</title>
+<meta name="description" content="Taller práctico de IA para el Estado. 8° Encuentro de Innovación Pública 2026. Facilita Ivonne Ayala.">
+<meta name="theme-color" content="#16213E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@400;500&display=swap">
+<style>
+/* Concepto: un ORDINARIO (oficio) que se vuelve laboratorio.
+   Papel cálido, tinta azul, timbres de colores. Cada paso es un oficio con ORD., ANT. y MAT. */
+:root{
+  --papel:#FFFDF8;
+  --lienzo:#F4EEE2;
+  --tinta:#16213E;
+  --tinta-2:#5A6478;
+  --tinta-3:#8B93A5;
+  --coral:#E4572E;
+  --coral-aire:#FCE9E2;
+  --verde:#24876A;
+  --verde-aire:#E1F2EC;
+  --ambar:#D99A1E;
+  --ambar-aire:#FBF1DA;
+  --cielo:#2F5DA8;
+  --cielo-aire:#E6EDF8;
+  --linea:#E6DCCB;
+  --disp:"Bricolage Grotesque","Trebuchet MS",sans-serif;
+  --texto:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  --mono:"DM Mono",ui-monospace,"Courier New",monospace;
+  --sombra:0 1px 0 rgba(22,33,62,.04),0 14px 30px -22px rgba(22,33,62,.45);
+  --barra-top:118px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--lienzo);color:var(--tinta);font-family:var(--texto);font-size:17px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  background-image:
+    radial-gradient(rgba(22,33,62,.035) 1px,transparent 1px),
+    radial-gradient(rgba(22,33,62,.025) 1px,transparent 1px);
+  background-size:22px 22px,13px 13px;background-position:0 0,7px 9px}
+h1,h2,h3{font-family:var(--disp);margin:0;line-height:1.08;letter-spacing:-.02em;text-wrap:balance}
+p{margin:0 0 .8em}
+a{color:var(--cielo)}
+button{font-family:var(--texto);cursor:pointer;color:inherit}
+:focus-visible{outline:3px solid var(--coral);outline-offset:3px}
+.oculto{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ============ cabecera ============ */
+.top{position:fixed;top:0;left:0;right:0;z-index:40;background:var(--tinta);color:#fff;
+  padding-top:env(safe-area-inset-top,0px)}
+.top .in{max-width:780px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-left,0px))}
+.marca{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0 10px}
+.marca b{font-family:var(--disp);font-weight:800;font-size:1rem;letter-spacing:-.01em;display:flex;align-items:center;gap:9px}
+.marca b i{width:11px;height:11px;border-radius:50%;background:var(--coral);display:inline-block;box-shadow:0 0 0 3px rgba(228,87,46,.25)}
+.marca span{font-family:var(--mono);font-size:.72rem;color:#AEB7CC;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+@media (max-width:600px){.marca span{display:none}.marca b{font-size:.92rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
+.pasoinfo{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:11px}
+.pasoinfo span{font-size:.95rem;color:#D5DBE8;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pasoinfo button{flex:none;border:1px solid rgba(255,255,255,.25);background:transparent;color:#fff;border-radius:999px;padding:6px 14px;font-size:.82rem;font-weight:700}
+.pasoinfo button[aria-expanded="true"]{background:#fff;color:var(--tinta)}
+nav{display:grid;gap:4px;padding:2px 0 14px;max-height:62vh;overflow-y:auto}
+nav[hidden],[hidden]{display:none!important}
+nav button{border:0;background:transparent;color:#C3CADA;border-radius:10px;padding:10px 12px;font-size:.95rem;text-align:left;
+  display:flex;align-items:center;gap:11px;transition:background .15s}
+nav button .n{width:10px;height:10px;border-radius:50%;border:2px solid rgba(255,255,255,.35);flex:none}
+nav button:hover{background:rgba(255,255,255,.07)}
+nav button[data-ok="1"] .n{background:var(--verde);border-color:var(--verde)}
+nav button[aria-current="true"]{background:#fff;color:var(--tinta);font-weight:700}
+nav button[aria-current="true"] .n{background:var(--coral);border-color:var(--coral)}
+.progreso{height:4px;background:rgba(255,255,255,.1)}
+.progreso i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--coral),var(--ambar));transition:width .4s cubic-bezier(.4,0,.2,1)}
+
+/* ============ página ============ */
+main{max-width:780px;margin:0 auto;padding:calc(var(--barra-top) + 26px) max(16px,env(safe-area-inset-left,0px)) 160px}
+.oficio{font-family:var(--mono);font-size:.76rem;color:var(--tinta-2);letter-spacing:.04em;line-height:1.7;
+  border-left:3px solid var(--coral);padding:2px 0 2px 12px;margin-bottom:18px;text-transform:uppercase}
+.oficio b{color:var(--tinta);font-weight:500}
+.oficio .min{display:inline-block;margin-top:4px;background:var(--tinta);color:#fff;padding:1px 8px;border-radius:4px;letter-spacing:.06em}
+h2{font-size:clamp(2rem,7.6vw,3.05rem);font-weight:800}
+h2 em{font-style:normal;color:var(--coral)}
+.sub{color:var(--tinta-2);margin:14px 0 26px;max-width:56ch;font-size:1.04rem}
+.paso>header{margin-bottom:6px}
+
+.card{background:var(--papel);border:1px solid var(--linea);border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:var(--sombra);position:relative}
+.card>h3{font-family:var(--mono);font-size:.76rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--tinta-2);
+  margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.card>h3 .num{width:24px;height:24px;border-radius:50%;background:var(--coral);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;flex:none}
+.card.tinta{background:var(--tinta);color:#EEF1F7;border-color:var(--tinta)}
+.card.tinta>h3{color:#AEB7CC}
+.card.aviso{background:var(--ambar-aire);border-color:#EED9A8;box-shadow:none}
+.card.ok{background:var(--verde-aire);border-color:#BFE0D3;box-shadow:none}
+
+.field{margin-bottom:17px}
+.field:last-child{margin-bottom:0}
+label.lab{display:block;font-weight:700;font-size:.96rem;margin-bottom:7px}
+label.lab small{font-weight:400;color:var(--tinta-3)}
+textarea,input[type=text],select{width:100%;min-width:0;font-family:var(--texto);font-size:1rem;color:var(--tinta);background:#fff;
+  border:1.5px solid var(--linea);border-radius:11px;padding:12px 13px;resize:vertical;transition:border-color .15s,box-shadow .15s}
+textarea:focus,input[type=text]:focus,select:focus{border-color:var(--tinta);box-shadow:0 0 0 4px rgba(22,33,62,.08);outline:none}
+::placeholder{color:#A6ACB9}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--tinta-2) 50%),linear-gradient(135deg,var(--tinta-2) 50%,transparent 50%);
+  background-position:calc(100% - 21px) 52%,calc(100% - 15px) 52%;background-size:6px 6px;background-repeat:no-repeat;padding-right:42px}
+.dos{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:520px){.dos{grid-template-columns:1fr}}
+details.ayuda{margin-top:8px}
+details.ayuda summary{font-size:.86rem;color:var(--cielo);cursor:pointer;font-weight:700;list-style:none;display:inline-flex;gap:7px;align-items:center}
+details.ayuda summary::-webkit-details-marker{display:none}
+details.ayuda summary::before{content:"?";font-family:var(--mono);font-size:.7rem;width:18px;height:18px;border-radius:50%;background:var(--cielo-aire);display:inline-flex;align-items:center;justify-content:center}
+details.ayuda p{font-size:.9rem;color:var(--tinta-2);margin:9px 0 0;padding-left:12px;border-left:2px solid var(--linea)}
+
+.meta{font-size:.87rem;color:var(--tinta-2)}
+.row{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+.btn{border:1.5px solid var(--linea);background:#fff;color:var(--tinta);border-radius:11px;padding:11px 16px;font-size:.93rem;font-weight:700;
+  text-decoration:none;display:inline-flex;align-items:center;gap:7px;transition:transform .1s,background .15s,border-color .15s}
+.btn:hover{border-color:var(--tinta)}
+.btn:active{transform:translateY(1px)}
+.btn.sol{background:var(--tinta);color:#fff;border-color:var(--tinta)}
+.btn.sol:hover{background:#24315A}
+.btn.coral{background:var(--coral);border-color:var(--coral);color:#fff}
+.btn.sm{padding:8px 12px;font-size:.85rem;font-weight:700}
+.btn.ia{font-family:var(--mono);font-weight:500;font-size:.82rem}
+.btn.ia[data-rec="1"]{background:var(--verde);border-color:var(--verde);color:#fff}
+.check{display:flex;gap:11px;align-items:flex-start;font-size:.95rem;margin-top:12px;cursor:pointer}
+.check:first-of-type{margin-top:0}
+.check input{margin-top:3px;width:19px;height:19px;accent-color:var(--tinta);flex:none}
+
+/* documento de salida */
+.salida{font-family:var(--mono);font-size:.84rem;line-height:1.72;white-space:pre-wrap;word-break:break-word;background:var(--tinta);color:#DFE5F1;
+  padding:18px 18px 18px 20px;border-radius:12px;position:relative;overflow:hidden;max-height:420px;overflow-y:auto}
+.salida::before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:var(--coral)}
+.salida.vacio{background:#fff;color:var(--tinta-3);border:1.5px dashed var(--linea);font-family:var(--texto);font-style:italic}
+.salida.vacio::before{display:none}
+.insumo{font-family:var(--mono);font-size:.8rem;line-height:1.65;white-space:pre-wrap;background:#fff;border:1.5px solid var(--linea);border-radius:12px;padding:14px 15px;max-height:260px;overflow-y:auto;color:var(--tinta-2)}
+
+/* ============ timbres ============ */
+.sello{display:inline-block;font-family:var(--disp);font-weight:800;text-transform:uppercase;letter-spacing:.08em;font-size:1.05rem;
+  padding:7px 14px;border:3px double currentColor;border-radius:8px;transform:rotate(-6deg);line-height:1.1;
+  -webkit-mask-image:radial-gradient(circle at 30% 40%,#000 62%,rgba(0,0,0,.75) 70%,#000 78%);
+          mask-image:radial-gradient(circle at 30% 40%,#000 62%,rgba(0,0,0,.75) 70%,#000 78%)}
+.sello.rojo{color:var(--coral)}
+.sello.verde{color:var(--verde)}
+.sello.ambar{color:var(--ambar)}
+.sello.azul{color:var(--cielo)}
+@keyframes timbrar{0%{opacity:0;transform:rotate(-14deg) scale(2.2)}60%{opacity:1;transform:rotate(-5deg) scale(.94)}100%{transform:rotate(-6deg) scale(1)}}
+.sello.pum{animation:timbrar .45s cubic-bezier(.3,1.4,.5,1) both}
+
+/* ============ inicio ============ */
+.hero{position:relative;padding:8px 0 4px}
+.hero .evento{font-family:var(--mono);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tinta-2)}
+.hero h1{font-size:clamp(2.5rem,11vw,4.6rem);font-weight:800;margin:12px 0 0;letter-spacing:-.035em}
+.hero h1 span{display:block;color:var(--coral)}
+.hero .sello{position:absolute;right:2px;top:30px}
+@media (max-width:520px){.hero .sello{position:static;margin-top:14px}}
+.promesa{font-size:1.15rem;max-width:44ch;margin:18px 0 26px}
+.promesa b{background:linear-gradient(transparent 58%,var(--ambar-aire) 58%)}
+.hecho-ia{font-size:.86rem;color:var(--tinta-2);display:flex;gap:10px;align-items:center;margin-top:6px}
+.hecho-ia::before{content:"";width:22px;height:2px;background:var(--coral);flex:none}
+
+/* ============ verdades y 4D ============ */
+.verdades{display:grid;gap:10px;margin-bottom:18px}
+.verdad{display:flex;gap:14px;align-items:flex-start;background:var(--papel);border:1px solid var(--linea);border-radius:14px;padding:15px 16px}
+.verdad .x{font-family:var(--disp);font-weight:800;font-size:1.5rem;color:var(--coral);line-height:1;flex:none;width:28px}
+.verdad b{display:block;font-size:1rem}
+.verdad span{font-size:.92rem;color:var(--tinta-2)}
+.cuatro{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+@media (max-width:560px){.cuatro{grid-template-columns:1fr}}
+.d4{text-align:left;background:var(--papel);border:1.5px solid var(--linea);border-radius:16px;padding:16px 16px 15px;box-shadow:var(--sombra);
+  transition:border-color .15s,transform .15s;width:100%}
+.d4:hover{transform:translateY(-2px)}
+.d4 .let{font-family:var(--disp);font-weight:800;font-size:2.3rem;line-height:1;display:block}
+.d4 h3{font-size:1.2rem;margin:6px 0 6px}
+.d4 p{font-size:.92rem;color:var(--tinta-2);margin:0}
+.d4 .ej{display:none;margin-top:11px;padding-top:11px;border-top:1px dashed var(--linea);font-size:.9rem;color:var(--tinta)}
+.d4 .ej b{font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tinta-3);display:block;margin-bottom:3px}
+.d4[aria-expanded="true"] .ej{display:block}
+.d4 .toca{font-family:var(--mono);font-size:.7rem;color:var(--tinta-3);letter-spacing:.06em;margin-top:9px;display:block}
+.d4[aria-expanded="true"] .toca{display:none}
+.d4:nth-child(1) .let{color:var(--coral)} .d4:nth-child(1)[aria-expanded="true"]{border-color:var(--coral)}
+.d4:nth-child(2) .let{color:var(--cielo)} .d4:nth-child(2)[aria-expanded="true"]{border-color:var(--cielo)}
+.d4:nth-child(3) .let{color:var(--ambar)} .d4:nth-child(3)[aria-expanded="true"]{border-color:var(--ambar)}
+.d4:nth-child(4) .let{color:var(--verde)} .d4:nth-child(4)[aria-expanded="true"]{border-color:var(--verde)}
+
+/* ============ dinámica votación ============ */
+.ronda{background:var(--papel);border:1px solid var(--linea);border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:var(--sombra)}
+.ronda .cab{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.ronda .cab span{font-family:var(--mono);font-size:.76rem;letter-spacing:.12em;text-transform:uppercase;color:var(--tinta-2)}
+.ronda blockquote{margin:0 0 16px;font-family:var(--mono);font-size:.88rem;line-height:1.7;background:var(--lienzo);border-radius:11px;padding:15px 16px;white-space:pre-wrap}
+.votos{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.voto{border:2px solid var(--linea);background:#fff;border-radius:13px;padding:14px 10px;font-weight:700;font-size:1rem;display:flex;flex-direction:column;align-items:center;gap:3px}
+.voto small{font-weight:400;font-size:.78rem;color:var(--tinta-2)}
+.voto.si[aria-pressed="true"]{border-color:var(--verde);background:var(--verde-aire)}
+.voto.no[aria-pressed="true"]{border-color:var(--coral);background:var(--coral-aire)}
+.veredicto{margin-top:16px;display:none}
+.veredicto.ver{display:block}
+.veredicto .sellowrap{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+.veredicto .tu{font-size:.9rem;font-weight:700}
+.veredicto p{font-size:.95rem}
+.veredicto .tag{display:inline-block;font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;background:var(--tinta);color:#fff;padding:2px 8px;border-radius:4px;margin-right:6px}
+.marcador{text-align:center;font-family:var(--disp);font-weight:800;font-size:1.3rem;margin:8px 0 0}
+
+/* ============ CREA ============ */
+.crea{display:grid;gap:10px;margin-bottom:16px}
+.crea .l{display:grid;grid-template-columns:58px 1fr;gap:14px;align-items:start;background:var(--papel);border:1px solid var(--linea);border-radius:14px;padding:14px 16px}
+.crea .l .k{font-family:var(--disp);font-weight:800;font-size:2.6rem;line-height:.9;color:var(--tinta)}
+.crea .l:nth-child(1) .k{color:var(--coral)} .crea .l:nth-child(2) .k{color:var(--cielo)}
+.crea .l:nth-child(3) .k{color:var(--ambar)} .crea .l:nth-child(4) .k{color:var(--verde)}
+.crea .l b{display:block;font-size:1.05rem}
+.crea .l span{font-size:.92rem;color:var(--tinta-2)}
+.toggle{display:inline-flex;background:var(--lienzo);border-radius:11px;padding:4px;gap:4px;margin-bottom:12px}
+.toggle button{border:0;background:transparent;padding:8px 14px;border-radius:8px;font-weight:700;font-size:.88rem;color:var(--tinta-2)}
+.toggle button[aria-pressed="true"]{background:#fff;color:var(--tinta);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.ias{display:grid;gap:10px}
+.iacard{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:center;background:var(--papel);border:1px solid var(--linea);border-radius:14px;padding:14px 16px}
+.iacard .logo{grid-row:span 2;width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:800;color:#fff;font-size:1.15rem}
+.iacard b{font-size:1.02rem}
+.iacard span{font-size:.9rem;color:var(--tinta-2)}
+
+/* ============ retos ============ */
+.retos{display:grid;gap:10px;margin-bottom:16px}
+.reto{text-align:left;background:var(--papel);border:2px solid var(--linea);border-radius:15px;padding:14px 16px;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;width:100%}
+.reto .ic{width:40px;height:40px;border-radius:11px;background:var(--lienzo);display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:800;font-size:1.05rem}
+.reto b{display:block;font-size:1rem;line-height:1.25}
+.reto span{font-size:.85rem;color:var(--tinta-2)}
+.reto .pill{font-family:var(--mono);font-size:.7rem;background:var(--lienzo);padding:3px 8px;border-radius:999px;white-space:nowrap}
+.reto[aria-pressed="true"]{border-color:var(--tinta);background:#fff}
+.reto[aria-pressed="true"] .ic{background:var(--tinta);color:#fff}
+.reto.bonus .ic{background:var(--ambar-aire);color:var(--ambar)}
+
+/* ============ semáforo ============ */
+.sem{display:grid;gap:14px}
+.sem .luz{display:grid;grid-template-columns:16px 1fr;gap:12px}
+.sem .luz i{width:16px;height:16px;border-radius:50%;margin-top:4px}
+.sem h3{font-family:var(--texto);font-size:1rem;margin-bottom:2px}
+.ancla{font-family:var(--disp);font-weight:700;font-size:clamp(1.3rem,5vw,1.7rem);line-height:1.2;letter-spacing:-.015em}
+.ancla em{font-style:normal;color:var(--ambar)}
+
+/* ============ herramientas ============ */
+.herr{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:560px){.herr{grid-template-columns:1fr}}
+.h{background:var(--papel);border:1px solid var(--linea);border-radius:14px;padding:15px 16px;display:flex;flex-direction:column;gap:6px}
+.h .top2{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.h b{font-family:var(--disp);font-size:1.12rem}
+.h .cat{font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--tinta-3)}
+.h p{font-size:.9rem;color:var(--tinta-2);margin:0;flex:1}
+.h a{font-weight:700;font-size:.88rem;text-decoration:none}
+
+/* ============ kit ============ */
+.logros{display:grid;gap:9px;margin-bottom:20px}
+.logro{display:grid;grid-template-columns:26px 1fr;gap:12px;align-items:start;background:var(--papel);border:1px solid var(--linea);border-radius:13px;padding:13px 15px}
+.logro .tick{width:26px;height:26px;border-radius:50%;border:2px solid var(--linea);display:flex;align-items:center;justify-content:center;color:transparent;font-size:.8rem;font-weight:700}
+.logro[data-ok="1"] .tick{background:var(--verde);border-color:var(--verde);color:#fff}
+.logro b{display:block;font-size:.97rem}
+.logro span{font-size:.87rem;color:var(--tinta-2)}
+details.acc{background:var(--papel);border:1px solid var(--linea);border-radius:14px;margin-bottom:10px;overflow:hidden}
+details.acc>summary{padding:16px 18px;font-weight:700;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px;font-family:var(--disp);font-size:1.08rem}
+details.acc>summary::-webkit-details-marker{display:none}
+details.acc>summary::after{content:"+";font-family:var(--mono);font-size:1.2rem;color:var(--coral)}
+details.acc[open]>summary::after{content:"–"}
+details.acc .cuerpo{padding:0 18px 18px}
+ol.hacks{margin:0;padding-left:22px}
+ol.hacks li{margin-bottom:12px;font-size:.95rem}
+ol.hacks li::marker{color:var(--coral);font-weight:700;font-family:var(--disp)}
+.pr{border-top:1px solid var(--linea);padding:14px 0}
+.pr:first-child{border-top:0;padding-top:2px}
+.pr b{display:block;margin-bottom:5px}
+.pr p{font-family:var(--mono);font-size:.8rem;color:var(--tinta-2);line-height:1.65;margin:0 0 9px;white-space:pre-wrap}
+
+/* ============ barra inferior ============ */
+.nav-bot{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(255,253,248,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border-top:1px solid var(--linea);padding:11px max(16px,env(safe-area-inset-left,0px)) calc(11px + env(safe-area-inset-bottom,0px))}
+.nav-bot .in{max-width:780px;margin:0 auto;display:flex;gap:10px}
+.nav-bot .sig{flex:1;justify-content:center}
+#guardado{font-size:.76rem;color:var(--tinta-3);text-align:center;margin-top:7px;font-family:var(--mono);letter-spacing:.03em}
+
+/* entrada */
+@keyframes sube{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.paso:not([hidden])>*{animation:sube .42s ease both}
+.paso:not([hidden])>*:nth-child(2){animation-delay:.05s}
+.paso:not([hidden])>*:nth-child(3){animation-delay:.1s}
+.paso:not([hidden])>*:nth-child(4){animation-delay:.15s}
+.paso:not([hidden])>*:nth-child(n+5){animation-delay:.2s}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+@media print{
+  .top,.nav-bot,.no-print{display:none!important}
+  body{background:#fff}
+  main{padding:0}
+  .paso{display:none!important}
+  #kit{display:block!important}
+  .salida{background:#fff;color:#000;border:1px solid #999;max-height:none}
+  details.acc{break-inside:avoid}
+  details.acc .cuerpo{display:block}
+}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="in">
+    <div class="marca">
+      <b><i></i>Laboratorio de Prompts para el Estado</b>
+      <span>Ivonne Ayala · EIP 2026</span>
+    </div>
+    <div class="pasoinfo">
+      <span id="pasoNom"></span>
+      <button type="button" id="indiceBtn" aria-expanded="false" aria-controls="nav">Índice</button>
+    </div>
+    <nav id="nav" aria-label="Pasos del taller" hidden></nav>
+  </div>
+  <div class="progreso"><i id="barra"></i></div>
+</div>
+
+<main>
+
+<!-- ================= 0. INICIO ================= -->
+<section class="paso" id="inicio" hidden>
+  <div class="hero">
+    <div class="evento">8° Encuentro de Innovación Pública · Santiago, 2 de diciembre de 2026</div>
+    <h1>Laboratorio de Prompts <span>para el Estado</span></h1>
+    <div class="sello rojo" id="selloInicio">Ingresado</div>
+  </div>
+  <p class="promesa">Hoy no vienes a escuchar sobre IA. Vienes a <b>resolver un problema tuyo</b> con ella, y a llevártelo resuelto.</p>
+
+  <div class="card">
+    <h3><span class="num">1</span>Tu problema real</h3>
+    <div class="field">
+      <label class="lab" for="prob">¿Qué tarea se te está cruzando esta semana o la próxima?</label>
+      <textarea id="prob" rows="4" placeholder="Ej.: Tengo que responder unas 40 consultas sobre el mismo trámite y cada una me toma 20 minutos porque las redacto desde cero."></textarea>
+      <details class="ayuda"><summary>No sé qué escribir</summary><p>Piensa en lo que te hace decir «otra vez esto». Algo que se repite, que te quita tiempo o que siempre queda para el final: una respuesta, un informe, una minuta, un correo difícil, ordenar información.</p></details>
+    </div>
+    <div class="dos">
+      <div class="field">
+        <label class="lab" for="frec">¿Cada cuánto la haces?</label>
+        <select id="frec">
+          <option value="">Elige</option>
+          <option>Todos los días</option>
+          <option>Varias veces por semana</option>
+          <option>Una vez por semana</option>
+          <option>Una vez al mes</option>
+          <option>Es una tarea puntual</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="lab" for="tiempo">¿Cuánto te toma cada vez?</label>
+        <select id="tiempo">
+          <option value="">Elige</option>
+          <option>Menos de 30 minutos</option>
+          <option>Entre 30 minutos y 1 hora</option>
+          <option>Entre 1 y 3 horas</option>
+          <option>Más de 3 horas</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="num">2</span>Quién eres <small style="text-transform:none;letter-spacing:0">(opcional)</small></h3>
+    <div class="dos">
+      <div class="field"><label class="lab" for="nom">Tu nombre</label><input type="text" id="nom" placeholder="Solo para tu kit"></div>
+      <div class="field">
+        <label class="lab" for="donde">Vienes de</label>
+        <select id="donde">
+          <option value="">Elige</option>
+          <option>un servicio público</option>
+          <option>un municipio</option>
+          <option>la academia</option>
+          <option>una startup o emprendimiento</option>
+          <option>otra organización</option>
+        </select>
+      </div>
+    </div>
+    <div class="field"><label class="lab" for="cargo">Tu área o cargo</label><input type="text" id="cargo" placeholder="Ej.: Unidad de Atención Ciudadana, analista"></div>
+  </div>
+
+  <div class="card aviso">
+    <p style="margin:0"><b>Desde el minuto uno:</b> no escribas nombres, RUT ni datos de personas reales. Describe el problema en general. Esto es Diligencia, y en un rato vas a entender por qué importa tanto.</p>
+  </div>
+  <p class="hecho-ia">Este sitio lo construí con IA. Al final te cuento cómo.</p>
+</section>
+
+<!-- ================= 1. LAS 4 COMPETENCIAS ================= -->
+<section class="paso" id="competencias" hidden>
+  <header>
+    <div class="oficio"><b>ORD. N° 02</b><br>ANT.: Tu animal que no existe<br>MAT.: Por qué la IA a veces no te sirve<br><span class="min">5 min</span></div>
+    <h2>Si la IA te devolvió algo que no sirve, <em>casi nunca fue culpa de la IA.</em></h2>
+  </header>
+  <p class="sub">Tres cosas que conviene saber antes de escribirle una sola palabra.</p>
+
+  <div class="verdades">
+    <div class="verdad"><div class="x">1</div><div><b>No lee tu mente.</b><span>Solo sabe lo que le escribes. Si le pides «un oficio», adivina todo lo demás.</span></div></div>
+    <div class="verdad"><div class="x">2</div><div><b>No es un buscador.</b><span>Predice texto. Puede inventar un artículo de ley o una cifra con total seguridad.</span></div></div>
+    <div class="verdad"><div class="x">3</div><div><b>No conoce tu servicio.</b><span>Ni tu formato, ni tu jefatura, ni a la ciudadanía que atiendes. Eso se lo das tú.</span></div></div>
+  </div>
+
+  <div class="card tinta">
+    <h3>El marco de las 4 competencias</h3>
+    <p style="margin:0">Saber usar IA no es saber escribir prompts. Es dominar cuatro movimientos. Este marco viene del curso de fluidez en IA de Anthropic, la empresa que creó Claude. <b>Toca cada una.</b></p>
+  </div>
+
+  <div class="cuatro" id="cuatro">
+    <button type="button" class="d4" aria-expanded="false"><span class="let">D</span><h3>Delegación</h3><p>Decidir qué le entregas a la IA y qué no.</p>
+      <div class="ej"><b>En el Estado</b>El borrador de una respuesta ciudadana, sí. Decidir si una postulación es admisible, no.</div><span class="toca">Toca para ver un ejemplo</span></button>
+    <button type="button" class="d4" aria-expanded="false"><span class="let">D</span><h3>Descripción</h3><p>Pedir con claridad: contexto, formato, tono.</p>
+      <div class="ej"><b>En el Estado</b>Lo mismo que hiciste con tu animal. No es «hazme un oficio». Es a quién, con qué antecedentes, en qué formato y para cuándo.</div><span class="toca">Toca para ver un ejemplo</span></button>
+    <button type="button" class="d4" aria-expanded="false"><span class="let">D</span><h3>Discernimiento</h3><p>Evaluar con criterio lo que te devuelve.</p>
+      <div class="ej"><b>En el Estado</b>¿El artículo que citó existe? ¿El plazo es de días hábiles o corridos? ¿Agregó algo que no estaba?</div><span class="toca">Toca para ver un ejemplo</span></button>
+    <button type="button" class="d4" aria-expanded="false"><span class="let">D</span><h3>Diligencia</h3><p>Hacerte responsable del resultado.</p>
+      <div class="ej"><b>En el Estado</b>Lo que sale con el logo de tu servicio lo firmas tú, no la IA. Y los datos de las personas no se regalan.</div><span class="toca">Toca para ver un ejemplo</span></button>
+  </div>
+
+  <div class="card">
+    <div class="field">
+      <label class="lab" for="d4">Sé honesto: ¿cuál de las cuatro te cuesta más hoy?</label>
+      <select id="d4">
+        <option value="">Elige una</option>
+        <option>Delegación</option>
+        <option>Descripción</option>
+        <option>Discernimiento</option>
+        <option>Diligencia</option>
+      </select>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 2. DINÁMICA ¿BIEN O MAL? ================= -->
+<section class="paso" id="dinamica" hidden>
+  <header>
+    <div class="oficio"><b>ORD. N° 03</b><br>ANT.: Las 4 competencias<br>MAT.: Dinámica. ¿Lo mandarías así?<br><span class="min">5 min</span></div>
+    <h2>¿Aprobado o <em>devuelto</em>?</h2>
+  </header>
+  <div class="card tinta" style="margin-top:22px">
+    <h3>Cómo se juega</h3>
+    <p class="ancla" style="margin:0 0 8px">De pie si lo <em>aprobarías</em>. Sentado si lo devuelves.</p>
+    <p style="margin:0">Tres prompts reales. Ojo: no todo lo que se ve bien está bien.</p>
+  </div>
+  <div id="rondas"></div>
+  <p class="marcador" id="marcador"></p>
+</section>
+
+<!-- ================= 3. CREA ================= -->
+<section class="paso" id="crea" hidden>
+  <header>
+    <div class="oficio"><b>ORD. N° 04</b><br>ANT.: Lo que acabas de votar<br>MAT.: El método y la herramienta<br><span class="min">4 min</span></div>
+    <h2>Cuatro letras que cambian <em>todo</em>: CREA.</h2>
+  </header>
+  <p class="sub">Un método simple para no olvidar nada cuando le pides algo a cualquier IA.</p>
+
+  <div class="crea">
+    <div class="l"><span class="k">C</span><div><b>Contexto</b><span>Dónde trabajas, qué está pasando y para quién es el resultado.</span></div></div>
+    <div class="l"><span class="k">R</span><div><b>Rol</b><span>Qué experto quieres del otro lado. «Abogado de procedimiento administrativo con 15 años en municipios».</span></div></div>
+    <div class="l"><span class="k">E</span><div><b>Especificaciones</b><span>Extensión, tono, formato, qué incluir y qué no. Aquí casi todos se quedan cortos.</span></div></div>
+    <div class="l"><span class="k">A</span><div><b>Acción</b><span>El producto exacto que necesitas. No pidas «ayuda con»: pide el producto.</span></div></div>
+  </div>
+
+  <div class="card">
+    <h3>Míralo en acción</h3>
+    <div class="toggle" role="group" aria-label="Comparar prompts">
+      <button type="button" id="tAntes" aria-pressed="true">Antes</button>
+      <button type="button" id="tDespues" aria-pressed="false">Con CREA</button>
+    </div>
+    <div class="salida" id="ejemploCrea"></div>
+  </div>
+
+  <div class="card tinta">
+    <h3>Y una cosa más</h3>
+    <p style="margin:0">No todas las IA son iguales. Elegir bien la herramienta es parte del prompt.</p>
+  </div>
+  <div class="ias" id="ias"></div>
+</section>
+
+<!-- ================= 4. ANIMAL FICTICIO ================= -->
+<section class="paso" id="animal" hidden>
+  <header>
+    <div class="oficio"><b>ORD. N° 01</b><br>ANT.: Tu problema, ya ingresado<br>MAT.: Para calentar. El animal que nadie ha visto<br><span class="min">5 min</span></div>
+    <h2>Crea un animal que <em>no existe.</em></h2>
+  </header>
+  <p class="sub">Antes de cualquier teoría, a jugar. La IA nunca ha visto a tu animal: solo va a existir lo que tú describas. Guarda esta idea, porque con tu trabajo pasa exactamente lo mismo.</p>
+
+  <div class="card">
+    <h3><span class="num">1</span>Descríbelo</h3>
+    <div class="row" style="margin-bottom:14px"><button type="button" class="btn sm" id="anEjemplo">Ver un ejemplo</button><button type="button" class="btn sm" id="anVaciar">Vaciar</button></div>
+    <div class="dos">
+      <div class="field"><label class="lab" for="an_nom">Nombre</label><input type="text" id="an_nom" placeholder="Ej.: Timbrillo"></div>
+      <div class="field"><label class="lab" for="an_cuerpo">Es una mezcla de</label><input type="text" id="an_cuerpo" placeholder="Ej.: quirquincho y búho"></div>
+    </div>
+    <div class="field"><label class="lab" for="an_rasgo">El rasgo que lo hace único</label><input type="text" id="an_rasgo" placeholder="Ej.: su caparazón son carpetas apiladas"></div>
+    <div class="dos">
+      <div class="field"><label class="lab" for="an_lugar">Dónde vive</label><input type="text" id="an_lugar" placeholder="Ej.: el desierto de Atacama de noche"></div>
+      <div class="field"><label class="lab" for="an_accion">Qué está haciendo</label><input type="text" id="an_accion" placeholder="Ej.: timbrando hojas con la cola"></div>
+    </div>
+    <div class="dos">
+      <div class="field">
+        <label class="lab" for="an_estilo">Estilo</label>
+        <select id="an_estilo">
+          <option>fotografía realista de naturaleza</option>
+          <option>ilustración de libro infantil</option>
+          <option>acuarela</option>
+          <option>animación 3D</option>
+          <option>grabado científico antiguo</option>
+          <option>arte de videojuego retro</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="lab" for="an_luz">Encuadre y luz</label>
+        <select id="an_luz">
+          <option>plano medio, luz de atardecer</option>
+          <option>primer plano, luz suave de estudio</option>
+          <option>plano general, luz de luna</option>
+          <option>vista desde abajo, luz dramática</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="num">2</span>Tu prompt de imagen</h3>
+    <div class="salida vacio" id="anPrompt"></div>
+    <div class="row no-print" style="margin-top:13px">
+      <button type="button" class="btn sol" id="anCopiar">Copiar</button>
+      <a class="btn ia" data-rec="1" href="https://gemini.google.com" target="_blank" rel="noopener">Abrir Gemini</a>
+      <a class="btn ia" href="https://chatgpt.com" target="_blank" rel="noopener">Abrir ChatGPT</a>
+    </div>
+  </div>
+
+  <div class="card ok">
+    <h3>El reto de la mesa</h3>
+    <p>Muéstrale solo la imagen a tu mesa. ¿Adivinan de qué mezclaste a tu animal?</p>
+    <p style="margin:0">Después prueba con «genera un animal raro» y compara. Esa diferencia es la misma que hay entre «hazme un oficio» y un buen prompt. En unos minutos vemos cómo se arma.</p>
+  </div>
+</section>
+
+<!-- ================= 5. EJERCICIO 1: RETO ================= -->
+<section class="paso" id="reto" hidden>
+  <header>
+    <div class="oficio"><b>ORD. N° 05</b><br>ANT.: Tareas reales del Estado<br>MAT.: Ejercicio 1. Elige tu reto<br><span class="min">10 min</span></div>
+    <h2>Un reto del Estado, <em>listo para correr.</em></h2>
+  </header>
+  <p class="sub">Elige uno. El prompt ya está armado con CREA y el insumo es un ejemplo ficticio. Cópialo, pégalo en la IA recomendada y mira qué pasa. Si terminas rápido, haz la segunda vuelta.</p>
+
+  <div class="retos" id="retos"></div>
+
+  <div id="retoDetalle"></div>
+</section>
+
+<!-- ================= 6. EJERCICIO 2: TU PROBLEMA ================= -->
+<section class="paso" id="tuyo" hidden>
+  <header>
+    <div class="oficio"><b>ORD. N° 06</b><br>ANT.: Tu problema del inicio<br>MAT.: Ejercicio 2. Ahora va lo tuyo<br><span class="min">15 min</span></div>
+    <h2>Ahora resolvemos <em>tu</em> problema.</h2>
+  </header>
+
+  <div class="card tinta" id="tuProblema">
+    <h3>Lo que escribiste al inicio</h3>
+    <p id="tuProblemaTxt" style="margin:0 0 10px"></p>
+    <button type="button" class="btn sm" id="irInicio" style="background:transparent;color:#fff;border-color:rgba(255,255,255,.3)">Editarlo</button>
+  </div>
+
+  <div class="card">
+    <h3><span class="num">1</span>¿Qué IA para esto?</h3>
+    <div class="field">
+      <label class="lab" for="tipo">¿Qué tipo de tarea es?</label>
+      <select id="tipo"></select>
+    </div>
+    <p class="meta" id="recomendacion" style="margin:0"></p>
+  </div>
+
+  <div class="card">
+    <h3><span class="num">2</span>Arma tu prompt con CREA</h3>
+    <div class="field">
+      <label class="lab" for="c">Contexto</label>
+      <textarea id="c" rows="3"></textarea>
+      <details class="ayuda"><summary>Qué poner aquí</summary><p>Dónde trabajas, qué está pasando y para quién es el resultado. Ya te lo dejamos empezado con lo que escribiste al inicio: complétalo.</p></details>
+    </div>
+    <div class="field">
+      <label class="lab" for="r">Rol</label>
+      <textarea id="r" rows="2" placeholder="Ej.: Actúa como especialista en atención ciudadana con experiencia en servicios públicos de Chile."></textarea>
+      <details class="ayuda"><summary>Qué poner aquí</summary><p>Qué experto quieres del otro lado, con su área y experiencia. Cambia el vocabulario y los criterios con los que responde.</p></details>
+    </div>
+    <div class="field">
+      <label class="lab" for="e">Especificaciones</label>
+      <textarea id="e" rows="3" placeholder="Ej.: Máximo una página. Tono cercano y formal. Usa solo la información que te doy. Incluye los plazos exactos."></textarea>
+      <details class="ayuda"><summary>Qué poner aquí</summary><p>Extensión, tono, formato, qué incluir y qué dejar fuera. Si tienes un ejemplo de cómo se ve bien, dile que lo vas a pegar.</p></details>
+    </div>
+    <div class="field">
+      <label class="lab" for="a">Acción</label>
+      <textarea id="a" rows="2" placeholder="Ej.: Redacta una respuesta base que pueda adaptar a cada consulta, y una lista de las 5 preguntas más frecuentes con su respuesta."></textarea>
+      <details class="ayuda"><summary>Qué poner aquí</summary><p>El producto final exacto. Mejor si dices el formato: tabla, correo, minuta, lista.</p></details>
+    </div>
+    <label class="check"><input type="checkbox" id="k_preg" checked> Si te falta información para hacerlo bien, pregúntame antes de responder.</label>
+    <label class="check"><input type="checkbox" id="k_noinv" checked> No inventes datos, cifras ni normas. Si algo no lo sabes, dilo.</label>
+    <label class="check"><input type="checkbox" id="k_vers"> Dame dos versiones distintas para elegir.</label>
+  </div>
+
+  <div class="card">
+    <h3><span class="num">3</span>Antes de pegarlo</h3>
+    <label class="check"><input type="checkbox" id="dil1"> No hay nombres, RUT, direcciones ni datos de salud de nadie.</label>
+    <label class="check"><input type="checkbox" id="dil2"> No hay información reservada de mi servicio.</label>
+    <label class="check"><input type="checkbox" id="dil3"> Sé si mi servicio permite usar esta herramienta.</label>
+  </div>
+
+  <div class="card">
+    <h3><span class="num">4</span>Cópialo y ejecútalo</h3>
+    <div class="salida vacio" id="preview"></div>
+    <p class="meta" id="contador" style="margin:9px 0 0"></p>
+    <div class="row no-print" style="margin-top:13px" id="botonesIA">
+      <button type="button" class="btn sol" id="copiarPrompt">Copiar mi prompt</button>
+    </div>
+    <p class="meta" style="margin:12px 0 0">Si la IA te hace preguntas, respóndelas. Ahí está la mitad del valor.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="num">5</span>Revisa lo que te entregó</h3>
+    <label class="check"><input type="checkbox" id="dis1"> Las cifras y datos son los míos, no inventados.</label>
+    <label class="check"><input type="checkbox" id="dis2"> Si citó una norma, verifiqué que existe y dice eso.</label>
+    <label class="check"><input type="checkbox" id="dis3"> El tono es el de mi servicio.</label>
+    <label class="check"><input type="checkbox" id="dis4"> Lo firmaría, o sé exactamente qué le falta.</label>
+    <div class="field" style="margin-top:16px">
+      <label class="lab" for="nota">¿Qué tan cerca quedó de lo que necesitabas?</label>
+      <select id="nota">
+        <option value="">Elige</option>
+        <option>Lo uso tal cual con ajustes menores</option>
+        <option>Me ahorró la mitad del trabajo</option>
+        <option>Me dio un buen punto de partida</option>
+        <option>Todavía no sirve: voy a iterar</option>
+      </select>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 7. SEMÁFORO ================= -->
+<section class="paso" id="semaforo" hidden>
+  <header>
+    <div class="oficio"><b>ORD. N° 07</b><br>ANT.: Todo lo que hiciste hoy<br>MAT.: Tu semáforo y tu compromiso<br><span class="min">4 min</span></div>
+    <h2>¿Qué le entregas a la IA, <em>y qué nunca?</em></h2>
+  </header>
+  <p class="sub">Tres tareas tuyas, cada una donde corresponde. La tercera columna es la que te hace insustituible.</p>
+
+  <div class="card">
+    <div class="sem">
+      <div class="luz"><i style="background:var(--verde)"></i><div><h3>Delegable</h3><p class="meta" style="margin:0 0 7px">Mucho volumen, poco criterio. Borradores, resúmenes, formatos, lenguaje claro.</p><textarea id="s1" rows="2"></textarea></div></div>
+      <div class="luz"><i style="background:var(--ambar)"></i><div><h3>Con revisión</h3><p class="meta" style="margin:0 0 7px">La IA hace el borrador, tú revisas y firmas. Respuestas, minutas, informes.</p><textarea id="s2" rows="2"></textarea></div></div>
+      <div class="luz"><i style="background:var(--coral)"></i><div><h3>Indelegable</h3><p class="meta" style="margin:0 0 7px">Decisiones sobre personas: admisibilidad, sanciones, beneficios, lo que firmas.</p><textarea id="s3" rows="2"></textarea></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Mi compromiso</h3>
+    <div class="field"><label class="lab" for="comp1">El lunes voy a usar la IA para…</label><input type="text" id="comp1" placeholder="Ej.: armar la base de respuestas de las consultas del trámite"></div>
+    <div class="field"><label class="lab" for="comp2">Nunca voy a delegar en la IA…</label><input type="text" id="comp2" placeholder="Ej.: la decisión final sobre una solicitud"></div>
+  </div>
+
+  <div class="card tinta">
+    <h3>La pregunta para llevarte</h3>
+    <p class="ancla">¿Esto me está <em>ayudando</em>, o me estoy auto-reemplazando?</p>
+  </div>
+</section>
+
+<!-- ================= 8. HERRAMIENTAS ================= -->
+<section class="paso" id="herramientas" hidden>
+  <header>
+    <div class="oficio"><b>ORD. N° 08</b><br>ANT.: ¿Qué IA para qué?<br>MAT.: Herramientas recomendadas<br><span class="min">Para llevar</span></div>
+    <h2>Tu caja de <em>herramientas.</em></h2>
+  </header>
+  <p class="sub">Todas tienen una versión gratuita para empezar. Antes de usarlas con información del trabajo, confirma qué permite tu servicio.</p>
+  <div class="herr" id="herr"></div>
+  <div class="card aviso" style="margin-top:16px">
+    <p style="margin:0 0 8px"><b>Regla de oro en el Estado.</b> Los lineamientos para el uso de IA en el sector público (2023) recomiendan no introducir información personal, especialmente la sensible, en herramientas de IA generativa no autorizadas.</p>
+    <p style="margin:0">La nueva Ley 21.719 de protección de datos personales sube aún más el estándar. Ante la duda: anonimiza, resume o pregunta.</p>
+  </div>
+</section>
+
+<!-- ================= 9. KIT ================= -->
+<section class="paso" id="kit" hidden>
+  <header>
+    <div class="oficio"><b>ORD. N° 09</b><br>ANT.: Tu problema del inicio<br>MAT.: Tu kit para llevar<br><span class="min">2 min</span></div>
+    <h2 id="kitTitulo">Lo que hiciste hoy.</h2>
+  </header>
+  <div style="margin:14px 0 22px"><span class="sello verde" id="selloKit">Resuelto</span></div>
+
+  <div class="logros" id="logros"></div>
+
+  <div class="row no-print" style="margin-bottom:10px">
+    <button type="button" class="btn sol" id="copiarTodo">Copiar todo mi kit</button>
+    <button type="button" class="btn" id="descargar">Descargar .txt</button>
+    <button type="button" class="btn" id="imprimir">Guardar en PDF</button>
+  </div>
+  <p class="meta no-print" style="margin:0 0 22px">Incluye todo lo que escribiste hoy, tus prompts, los 5 hacks y los 10 prompts base.</p>
+
+  <details class="acc"><summary>5 hacks de prompting</summary>
+    <div class="cuerpo"><ol class="hacks" id="hacks"></ol></div>
+  </details>
+  <details class="acc"><summary>10 prompts base para el Estado</summary>
+    <div class="cuerpo" id="listaPrompts"></div>
+  </details>
+  <details class="acc"><summary>Cómo hice este sitio con IA</summary>
+    <div class="cuerpo">
+      <p>Lo diseñé conversando con Claude: le di el contexto del taller (CREA), le pedí el rol de diseñador web, le especifiqué que funcionara en el celular y sin instalar nada, y le pedí la acción concreta: un solo archivo HTML.</p>
+      <p style="margin:0">Después lo revisé, lo probé y lo publiqué en GitHub Pages, que es gratis. Delegación, Descripción, Discernimiento y Diligencia, las cuatro.</p>
+    </div>
+  </details>
+
+  <div class="card no-print" style="margin-top:22px">
+    <h3>¿Laptop compartida?</h3>
+    <p class="meta">Todo se guarda solo en este dispositivo. Si esta laptop la usa otra persona después, borra lo tuyo.</p>
+    <button type="button" class="btn sm" id="borrar">Borrar mis datos de este dispositivo</button>
+  </div>
+  <p class="meta" style="text-align:center;margin-top:26px">Ivonne Ayala · Laboratorio de Prompts para el Estado · 8° Encuentro de Innovación Pública 2026</p>
+</section>
+
+</main>
+
+<div class="nav-bot no-print">
+  <div class="in">
+    <button type="button" class="btn" id="atras" aria-label="Paso anterior">Atrás</button>
+    <button type="button" class="btn coral sig" id="siguiente">Empezar</button>
+  </div>
+  <div id="guardado">Se guarda solo en este dispositivo</div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var KEY = "eip26-lab-prompts-v2";
+var $ = function(id){ return document.getElementById(id); };
+function ajustarTop(){
+  var t=document.querySelector(".top");
+  var h = $("nav").hidden ? t.offsetHeight : t.offsetHeight - $("nav").offsetHeight;
+  document.documentElement.style.setProperty("--barra-top",h+"px");
+}
+
+var PASOS = [
+  {id:"inicio",       nom:"Inicio"},
+  {id:"animal",       nom:"El animal que no existe"},
+  {id:"competencias", nom:"Las 4 competencias"},
+  {id:"dinamica",     nom:"¿Aprobado o devuelto?"},
+  {id:"crea",         nom:"CREA"},
+  {id:"reto",         nom:"Reto del Estado"},
+  {id:"tuyo",         nom:"Tu problema"},
+  {id:"semaforo",     nom:"Semáforo"},
+  {id:"herramientas", nom:"Herramientas"},
+  {id:"kit",          nom:"Mi kit"}
+];
+
+/* ---------------- herramientas ---------------- */
+var IA = {
+  claude:     {n:"Claude",      url:"https://claude.ai",                 color:"#C96442", cat:"Documentos", por:"Respeta formatos y plantillas. Ideal para oficios, informes, minutas y respuestas formales."},
+  chatgpt:    {n:"ChatGPT",     url:"https://chatgpt.com",               color:"#10A37F", cat:"Lenguaje cercano", por:"Escribe en lenguaje cotidiano. Ideal para lenguaje claro, mensajes a la ciudadanía y guiones."},
+  gemini:     {n:"Gemini",      url:"https://gemini.google.com",         color:"#3B6FE0", cat:"Google e imágenes", por:"Se integra con Docs, Sheets y Gmail. Bueno con planillas y genera imágenes."},
+  notebooklm: {n:"NotebookLM",  url:"https://notebooklm.google.com",     color:"#1F1F1F", cat:"Tus documentos", por:"Trabaja solo con los documentos que le subes y cita de dónde sacó cada cosa. Ideal para leyes, bases y expedientes."},
+  copilot:    {n:"Copilot",     url:"https://copilot.microsoft.com",     color:"#0B6CBD", cat:"Microsoft", por:"Chat gratuito en la web. Si tu servicio tiene la licencia, también vive dentro de Word, Excel y Outlook."},
+  perplexity: {n:"Perplexity",  url:"https://www.perplexity.ai",         color:"#1D7D84", cat:"Investigar", por:"Busca en internet y te muestra las fuentes de cada respuesta. Igual revisa que la fuente sea oficial."},
+  gamma:      {n:"Gamma",       url:"https://gamma.app",                 color:"#6B4FD8", cat:"Presentaciones", por:"Convierte un texto o una minuta en una presentación editable en minutos."},
+  canva:      {n:"Canva",       url:"https://www.canva.com",             color:"#00A3B4", cat:"Diseño", por:"Afiches, piezas gráficas y presentaciones con plantillas e IA."}
+};
+var IA_TEORIA = ["claude","chatgpt","gemini","notebooklm","copilot"];
+var IA_HERR = ["claude","chatgpt","gemini","notebooklm","copilot","perplexity","gamma","canva"];
+
+var TIPOS = [
+  {v:"formal",     t:"Documento formal: oficio, informe, minuta, acta, resolución", ia:"claude",     por:"respeta formatos y estructuras institucionales"},
+  {v:"ciudadania", t:"Comunicar a la ciudadanía: lenguaje claro, redes, WhatsApp, guion", ia:"chatgpt", por:"escribe con naturalidad y cercanía"},
+  {v:"docs",       t:"Trabajar sobre mis documentos: leyes, bases, expedientes, informes largos", ia:"notebooklm", por:"responde solo con tus documentos y te dice de dónde sacó cada cosa"},
+  {v:"datos",      t:"Datos, planillas o tablas (trabajo en Google)", ia:"gemini",     por:"conversa bien con Sheets y Docs"},
+  {v:"m365",       t:"Trabajo todo en Word, Excel y Outlook", ia:"copilot",    por:"es la IA del ecosistema Microsoft"},
+  {v:"imagen",     t:"Imágenes, afiches o material visual", ia:"gemini",     por:"genera imágenes desde el chat"},
+  {v:"investigar", t:"Investigar un tema con fuentes de internet", ia:"perplexity", por:"muestra las fuentes de cada respuesta"}
+];
+var PALABRAS = [
+  ["formal",     /oficio|informe|minuta|acta|resoluci|memo|ordinario|reglamento interno|carta formal|circular/i],
+  ["ciudadania", /whatsapp|redes|instagram|facebook|vecin|ciudadan|guion|guión|discurso|lenguaje claro|afiche|comunicad|mensaje/i],
+  ["docs",       /\bley\b|bases|expediente|normativa|decreto|licitaci|postulaci|documentos|pdf/i],
+  ["datos",      /excel|planilla|sheets|datos|tabla|estad[ií]stic|indicador|base de datos/i]
+];
+
+/* ---------------- dinámica ---------------- */
+var RONDAS = [
+  {p:"Hazme un oficio para el municipio pidiendo información.",
+   ok:false,
+   t:"Devuelto",
+   comp:"Descripción",
+   x:"La IA tiene que adivinar todo: qué información, para qué, a quién va dirigido, con qué fundamento y para cuándo. Te va a entregar un oficio genérico que vas a reescribir entero."},
+  {p:"Actúa como abogado de la OIRS. Redacta una respuesta formal a la ciudadana María Soto Pérez, RUT 12.345.678-9, domiciliada en Los Aromos 1234, Maipú, que reclama porque le rechazaron un beneficio por su diagnóstico de depresión. Tono empático, máximo una página, cita la normativa aplicable.\n\n(datos ficticios)",
+   ok:false,
+   t:"Devuelto",
+   comp:"Delegación y Diligencia",
+   x:"Está muy bien descrito, por eso engaña. Pero le regaló a una herramienta externa el nombre, RUT, dirección y un dato de salud de una persona. Y le pidió «la normativa aplicable» sin dársela, así que la puede inventar. La versión correcta: «una ciudadana», sin RUT ni diagnóstico, y pegando la norma que corresponde."},
+  {p:"Te pego el texto de la ley que regula los plazos de respuesta de mi servicio.\nContexto: debo responder una solicitud que ingresó hace 8 días hábiles.\nRol: actúa como abogado de procedimiento administrativo.\nAcción: dime en 5 viñetas qué plazos aplican, cita el artículo exacto de cada uno y, si algo no está en el texto que te di, escribe «no está en el documento».\n\n[texto de la ley]",
+   ok:true,
+   t:"Aprobado",
+   comp:"Discernimiento",
+   x:"Le das la fuente en vez de pedirle que recuerde, le pides citar el artículo para que puedas verificar, y le das permiso de decir «no está». Así es mucho más difícil que invente, y tú puedes revisar cada afirmación."}
+];
+
+/* ---------------- CREA ejemplo ---------------- */
+var ANTES = "Responde esta consulta de un vecino sobre el fondo concursable.";
+var DESPUES = "CONTEXTO: Trabajo en la unidad que responde consultas sobre un fondo concursable municipal. Un vecino pregunta si puede enviar un documento por correo porque la plataforma no se lo acepta.\n\nROL: Actúa como ejecutivo de atención ciudadana, cálido y preciso.\n\nESPECIFICACIONES: Responde solo con lo que dicen las bases que te pego y cita el artículo de cada afirmación. Máximo 150 palabras. Sin tecnicismos. Si algo no se puede confirmar con las bases, dilo y explica qué debe hacer la persona.\n\nACCIÓN: Redacta la respuesta lista para enviar.\n\nSi te falta información, pregúntame antes de responder.";
+
+/* ---------------- retos ---------------- */
+var RETOS = [
+  {id:"claro", ic:"A", t:"De ficha de trámite a lenguaje claro", s:"Una ficha que nadie entiende, en tres formatos para la ciudadanía", ia:"chatgpt",
+   prompt:"CONTEXTO: Trabajo en un servicio público que atiende a hogares rurales. Te pego la ficha oficial de un trámite. Mucha gente no la entiende y llama o va a la oficina a preguntar lo mismo.\n\nROL: Actúa como especialista en lenguaje claro para la ciudadanía, con experiencia en servicios públicos de Chile.\n\nESPECIFICACIONES: Conserva exactamente todos los requisitos, plazos, montos y excepciones. No agregues información que no esté en la ficha. Frases de máximo 20 palabras. Trata a la persona de tú, con respeto. Si algo de la ficha es ambiguo, márcalo con [REVISAR].\n\nACCIÓN: Entrégame tres versiones: (1) un texto para la página web con subtítulos, (2) un mensaje de WhatsApp de máximo 6 líneas, (3) una lista de «lo que necesitas tener a mano antes de postular».",
+   insumo:"FICHA DE TRÁMITE (ejemplo ficticio)\n\nNombre: Bono de Apoyo a la Conectividad Rural (BACR)\n\nDescripción: Beneficio económico de carácter anual destinado a contribuir al financiamiento del servicio de conectividad a internet de hogares ubicados en zonas rurales, conforme a los criterios de focalización establecidos en el reglamento respectivo.\n\nRequisitos: a) Ser jefe o jefa de hogar con residencia en una localidad calificada como rural según el instrumento vigente. b) Pertenecer al tramo del 60% de menores ingresos o mayor vulnerabilidad según el Registro Social de Hogares. c) Acreditar la contratación de un servicio de internet fijo o móvil mediante boleta o contrato con una antigüedad no superior a 90 días corridos. d) No haber sido beneficiario del mismo bono en el período inmediatamente anterior, salvo que el hogar cuente con integrantes en edad escolar.\n\nPlazo de postulación: desde el 1 de marzo hasta el 30 de abril, ambos inclusive. Las postulaciones recepcionadas fuera de plazo serán declaradas inadmisibles, sin perjuicio de lo dispuesto en el artículo 12 para casos de fuerza mayor debidamente acreditados.\n\nCanales: en línea mediante ClaveÚnica, o presencialmente en las oficinas municipales habilitadas.\n\nMonto: hasta $60.000 anuales, pagaderos en una cuota.\n\nResultados: se informarán dentro de los 45 días hábiles siguientes al cierre del proceso.",
+   vuelta:"Ahora audita tu propio trabajo: haz una tabla que compare cada requisito, plazo, monto y excepción de la ficha original con tus tres versiones. Marca con ✗ todo lo que se perdió o cambió.",
+   mira:"La segunda vuelta es la magia: la IA revisando su propio trabajo contra la fuente. Eso es Discernimiento automatizado, pero la última palabra sigue siendo tuya."},
+  {id:"minuta", ic:"B", t:"De notas desordenadas a minuta con compromisos", s:"Lo que se habló en la reunión, con responsables y plazos", ia:"claude",
+   prompt:"CONTEXTO: Coordino una mesa intersectorial de un municipio. Estas son mis notas desordenadas de la última reunión. Necesito enviar la minuta hoy.\n\nROL: Actúa como secretario técnico con experiencia en coordinación intersectorial en el sector público.\n\nESPECIFICACIONES: Usa solo lo que está en las notas. No inventes responsables ni fechas. Si una tarea no tiene responsable o plazo, escribe SIN RESPONSABLE o SIN PLAZO. Tono formal y breve. Máximo una página.\n\nACCIÓN: Entrégame la minuta con: asistentes, acuerdos, una tabla de compromisos (tarea, responsable, plazo, estado) y una lista de temas pendientes de definir.",
+   insumo:"NOTAS (ejemplo ficticio)\n\nnotas reu coord mesa intersectorial personas mayores, martes\n- partió tarde (15 min). están: Pablo (municipio), Andrea (salud), yo, Rodrigo (social). falta educación\n- tema 1 operativo invierno: salud dice que las vacunas llegan la 2da semana, hay que coordinar transporte para los de sectores altos. ¿municipio pone 2 vans? Pablo lo confirma la otra semana\n- se habló de hacer catastro de personas mayores que viven solas, nadie dijo quién\n- tema 2: plataforma de derivaciones sigue sin funcionar, Rodrigo manda correo a TI... ¿para cuándo? no quedó claro\n- Andrea propone feria de servicios en junio. todos de acuerdo. lugar: ¿gimnasio municipal o sede vecinal? quedó pendiente\n- próxima reunión: ¿primer martes del mes? alguien dijo que no podía\n- ojo presupuesto colaciones feria: falta ver con administración",
+   vuelta:"Redacta el correo para enviar esta minuta a los asistentes. Pide de forma explícita que cada persona confirme su compromiso y que alguien se haga cargo de los que dicen SIN RESPONSABLE.",
+   mira:"Fíjate si respetó los SIN RESPONSABLE o si «adivinó» quién hacía el catastro. Si inventó, ahí tienes un ejemplo perfecto de por qué se revisa todo."},
+  {id:"consulta", ic:"C", t:"Responder una consulta ciudadana", s:"Una vecina pregunta, las bases responden, la IA redacta", ia:"claude",
+   prompt:"CONTEXTO: Trabajo en la unidad que responde consultas sobre un fondo concursable municipal. Te paso la consulta de una vecina y el extracto oficial de las bases.\n\nROL: Actúa como ejecutiva de atención ciudadana, cálida y precisa.\n\nESPECIFICACIONES: Responde solo con lo que dicen las bases y cita el artículo de cada afirmación. Si algo no se puede confirmar con las bases, dilo y explica qué debe hacer la persona. Máximo 180 palabras. Sin tecnicismos. No prometas nada que las bases no digan.\n\nACCIÓN: Redacta la respuesta lista para enviar.",
+   insumo:"CONSULTA (ejemplo ficticio)\n«Hola, buenas tardes. Postulé al Fondo Vecinal de Iniciativas Comunitarias con mi junta de vecinos, pero el sistema no me dejó subir el certificado de vigencia porque dice que está vencido. Lo saqué hace 2 meses. ¿Puedo mandarlo por correo? ¿Y si nos dejan fuera, igual podemos postular el próximo año? Gracias.»\n\nEXTRACTO DE BASES (ejemplo ficticio)\nArt. 5. Documentos obligatorios: certificado de vigencia de la personalidad jurídica emitido con una antigüedad no superior a 60 días corridos a la fecha de postulación.\nArt. 6. Toda la documentación deberá ingresarse exclusivamente a través de la plataforma de postulación. No se aceptarán antecedentes enviados por correo electrónico u otros medios.\nArt. 9. Las organizaciones podrán solicitar aclaraciones hasta 5 días hábiles antes del cierre de la convocatoria, a través del formulario de consultas.\nArt. 14. Las organizaciones declaradas inadmisibles podrán postular en convocatorias futuras, siempre que cumplan los requisitos vigentes en cada una.",
+   vuelta:"¿Qué parte de la consulta no se puede responder con certeza usando solo las bases? Explícame por qué, y escribe las dos preguntas que yo debería hacerle a mi jefatura antes de responder.",
+   mira:"La trampa está en «hace 2 meses»: ¿son más o menos de 60 días corridos? Una buena respuesta no lo asume. Mira si la IA lo detectó sola."},
+  {id:"jefatura", ic:"D", t:"De informe largo a minuta para la jefatura", s:"Lo que tu jefatura tiene que decidir, en una página", ia:"claude",
+   prompt:"CONTEXTO: Mi jefatura tiene 5 minutos para leer el avance del programa antes del comité del lunes, y tiene que tomar decisiones.\n\nROL: Actúa como asesor de gestión pública experto en minutas ejecutivas.\n\nESPECIFICACIONES: Máximo una página. Empieza por las decisiones requeridas. Separa con claridad los HECHOS del reporte de las INTERPRETACIONES del equipo que aún no están validadas. Usa solo cifras del reporte.\n\nACCIÓN: Entrégame una minuta ejecutiva con: decisiones requeridas (con fecha), 3 hallazgos clave, riesgos y antecedentes de respaldo.",
+   insumo:"REPORTE DE AVANCE TRIMESTRAL (ejemplo ficticio)\nPrograma Ventanilla Digital Municipal\n\nDurante el trimestre se habilitaron 14 de los 20 trámites comprometidos en la ventanilla digital. Los 6 trámites restantes dependen de la integración con el sistema de pagos, cuya licitación fue declarada desierta en agosto por falta de oferentes que cumplieran los requisitos técnicos. El equipo propone relicitar con requisitos ajustados, lo que implica un retraso estimado de 4 meses.\n\nEl uso de la ventanilla creció de 1.200 a 3.400 solicitudes mensuales. Sin embargo, el 38% de las solicitudes de permisos de circulación se abandona en el paso de carga de documentos. El equipo atribuye esto a que el formulario no funciona bien en celulares, aunque no se ha realizado un testeo con usuarios para confirmarlo.\n\nLa mesa de ayuda recibió 410 consultas, de las cuales el 60% corresponde a recuperación de clave. Se recomienda evaluar la integración con ClaveÚnica, que requiere aprobación de la jefatura de servicio.\n\nEl presupuesto ejecutado alcanza el 71%. Queda pendiente la contratación de un segundo desarrollador, aprobada en junio pero sin proceso iniciado.\n\nDecisiones requeridas antes del 15 de diciembre: (1) aprobar la relicitación del sistema de pagos; (2) definir si se avanza con la integración de ClaveÚnica; (3) iniciar la contratación del desarrollador.",
+   vuelta:"Convierte la minuta en 3 diapositivas: cada una con un título que diga la conclusión, no el tema, y máximo 3 viñetas.",
+   mira:"¿Separó el «hecho» (38% abandona) de la «interpretación» (que es por el celular)? Esa distinción es la que evita que la jefatura decida sobre una hipótesis."},
+  {id:"postits", ic:"★", bonus:true, t:"Bonus: de notas a mano a matriz de hallazgos", s:"Para mesas rápidas. Necesitas papel, lápiz y la cámara del celular", ia:"gemini",
+   prompt:"CONTEXTO: Te adjunto la foto de notas escritas a mano por las personas de mi mesa en un taller participativo. Cada nota responde: ¿qué es lo que más tiempo te quita en tu trabajo?\n\nROL: Actúa como investigador en diseño de servicios públicos.\n\nESPECIFICACIONES: Primero transcribe cada nota tal cual. Luego agrúpalas por tema. Distingue lo que dijeron las personas de tus interpretaciones. Si algo no se lee, escribe [ilegible] en vez de adivinar.\n\nACCIÓN: Entrégame una matriz de hallazgos con: tema, notas que lo respaldan, coincidencias, diferencias y necesidades detectadas.",
+   insumo:"CÓMO HACERLO\n1. En una hoja, cada persona de la mesa escribe a mano una frase: ¿qué es lo que más tiempo te quita en tu trabajo?\n2. Sáquenle una foto a la hoja.\n3. En Gemini o ChatGPT, adjunten la foto y peguen el prompt.",
+   vuelta:"Con esta matriz, propón 3 tareas que esta mesa podría empezar a delegar en la IA mañana, y una que nunca debería delegar. Justifica cada una en una línea.",
+   mira:"De letra a mano a matriz de hallazgos en segundos. Es el ejemplo número uno que propuso el Laboratorio de Gobierno, hecho en vivo con su propia mesa."}
+];
+
+/* ---------------- kit ---------------- */
+var HACKS = [
+  ["Pídele que pregunte antes de responder.","Una línea al final convierte el monólogo en entrevista: «si te falta información, pregúntame antes»."],
+  ["Dale permiso de decir «no sé».","«Si algo no está en el documento, dilo.» Es la mejor vacuna contra los datos inventados."],
+  ["Muéstrale un ejemplo que sí te gustó.","Un oficio o una minuta del año pasado, sin datos personales, fija el estándar mejor que cualquier instrucción."],
+  ["Pide dos o tres versiones.","Elegir entre opciones es más rápido que corregir una sola."],
+  ["Pídele que se revise contra la fuente.","«Compara tu respuesta con el documento original y marca lo que no está respaldado.»"]
+];
+var PROMPTS = [
+  ["Oficio","Redacta un oficio de [servicio] dirigido a [cargo e institución] para solicitar [qué], con fundamento en [antecedente o norma que te pego]. Formato: ANT., MAT., cuerpo de tres párrafos y cierre formal. Si falta un antecedente, márcalo entre corchetes."],
+  ["Minuta de reunión","Convierte estas notas en una minuta con asistentes, acuerdos y una tabla de compromisos (tarea, responsable, plazo). No inventes responsables: si no hay, escribe SIN RESPONSABLE."],
+  ["Respuesta a consulta ciudadana","Con base solo en [documento oficial que te pego], redacta una respuesta de máximo [N] palabras a esta consulta. Cita el artículo de cada afirmación y, si algo no se puede responder, dilo."],
+  ["Lenguaje claro","Reescribe este texto en lenguaje claro para [público]. Conserva todos los requisitos, plazos y excepciones. No agregues información. Frases de máximo 20 palabras."],
+  ["Minuta ejecutiva para la jefatura","Resume este informe en una página para [cargo], empezando por las decisiones requeridas. Separa hechos de interpretaciones no validadas. Usa solo cifras del documento."],
+  ["Revisión de postulaciones","Compara esta postulación con la pauta de requisitos que te pego. Entrégame una tabla: requisito, presente / faltante / ambiguo, y el documento que lo respalda. No determines admisibilidad: solo señala alertas para el equipo."],
+  ["Sistematizar un taller participativo","Transcribe las notas de esta foto, agrúpalas por tema y entrégame una matriz de hallazgos. Distingue lo dicho por las personas de tus interpretaciones."],
+  ["Pauta de entrevista con usuarios","Diseña una pauta de entrevista para entender [objetivo] con usuarios de [servicio]. Preguntas neutrales, sin inducir respuestas, más 3 tareas de prueba y qué observar."],
+  ["Mejora de un proceso","Con esta descripción del trámite y sus etapas, identifica posibles cuellos de botella y propuestas de mejora. Distingue los problemas documentados de las hipótesis por validar."],
+  ["Clasificar consultas o reclamos","Clasifica estos mensajes en las categorías [lista]. Entrégame una tabla con mensaje, categoría y nivel de confianza, y marca los que no calzan en ninguna."]
+];
+
+/* ================= estado ================= */
+var CAMPOS = ["nom","donde","cargo","prob","frec","tiempo","d4",
+  "an_nom","an_cuerpo","an_rasgo","an_lugar","an_accion","an_estilo","an_luz",
+  "tipo","c","r","e","a","nota","s1","s2","s3","comp1","comp2"];
+var CASILLAS = ["k_preg","k_noinv","k_vers","dil1","dil2","dil3","dis1","dis2","dis3","dis4"];
+var st = {paso:0, revelados:{}, reto:"", retoHecho:{}, cAuto:false, vistos:{}};
+var actual = 0;
+
+function v(id){ var el=$(id); return el ? (el.value||"").trim() : ""; }
+
+/* ================= navegación ================= */
+PASOS.forEach(function(p,i){
+  var b=document.createElement("button");
+  b.type="button";
+  b.innerHTML='<span class="n"></span>'+p.nom;
+  b.addEventListener("click",function(){ abrirIndice(false); ir(i); });
+  $("nav").appendChild(b);
+});
+function abrirIndice(on){
+  $("nav").hidden=!on; $("indiceBtn").setAttribute("aria-expanded",on?"true":"false");
+  $("indiceBtn").textContent = on ? "Cerrar" : "Índice";
+  ajustarTop();
+}
+$("indiceBtn").addEventListener("click",function(){ abrirIndice($("nav").hidden); });
+
+function ir(i, sinHash){
+  actual=Math.max(0,Math.min(PASOS.length-1,i));
+  PASOS.forEach(function(p,k){
+    $(p.id).hidden=(k!==actual);
+    $("nav").children[k].setAttribute("aria-current",k===actual?"true":"false");
+  });
+  $("atras").style.display = actual===0 ? "none":"";
+  st.vistos[PASOS[actual].id]=1;
+  $("siguiente").textContent = actual===0 ? "Empezar" : (actual===PASOS.length-1 ? "Volver al inicio" : "Siguiente: "+PASOS[actual+1].nom);
+  $("pasoNom").textContent = PASOS[actual].nom;
+  window.scrollTo(0,0);
+  $("barra").style.width=Math.round(actual/(PASOS.length-1)*100)+"%";
+  if(PASOS[actual].id==="tuyo") entrarTuyo();
+  if(PASOS[actual].id==="kit") timbrar($("selloKit"));
+  if(!sinHash){ try{ history.replaceState(null,"","#"+PASOS[actual].id); }catch(e){} }
+  st.paso=actual; guardar();
+}
+$("atras").addEventListener("click",function(){ ir(actual-1); });
+$("siguiente").addEventListener("click",function(){ ir(actual===PASOS.length-1?0:actual+1); });
+$("irInicio").addEventListener("click",function(){ ir(0); setTimeout(function(){ $("prob").focus(); },300); });
+window.addEventListener("hashchange",aplicarHash);
+function aplicarHash(){
+  var h=(location.hash||"").replace("#","");
+  for(var i=0;i<PASOS.length;i++){ if(PASOS[i].id===h){ ir(i,true); return true; } }
+  return false;
+}
+function timbrar(el){ if(!el) return; el.classList.remove("pum"); void el.offsetWidth; el.classList.add("pum"); }
+
+/* ================= 4D ================= */
+Array.prototype.forEach.call(document.querySelectorAll(".d4"),function(b){
+  b.addEventListener("click",function(){ b.setAttribute("aria-expanded", b.getAttribute("aria-expanded")==="true"?"false":"true"); });
+});
+
+/* ================= dinámica ================= */
+function pintaRondas(){
+  var cont=$("rondas"); cont.textContent="";
+  RONDAS.forEach(function(r,i){
+    var d=document.createElement("div"); d.className="ronda";
+    d.innerHTML='<div class="cab"><span>Ronda '+(i+1)+' de '+RONDAS.length+'</span></div>';
+    var q=document.createElement("blockquote"); q.textContent=r.p; d.appendChild(q);
+    var bt=document.createElement("button"); bt.type="button"; bt.className="btn sol"; bt.style.width="100%"; bt.style.justifyContent="center";
+    d.appendChild(bt);
+    var ver=document.createElement("div"); ver.className="veredicto";
+    ver.innerHTML='<div class="sellowrap"><span class="sello '+(r.ok?"verde":"rojo")+'">'+r.t+'</span></div><p><span class="tag">'+r.comp+'</span></p>';
+    var px=document.createElement("p"); px.style.margin="0"; px.textContent=r.x; ver.appendChild(px);
+    d.appendChild(ver);
+    function pinta(){
+      var on=!!st.revelados[i];
+      ver.className = on ? "veredicto ver" : "veredicto";
+      bt.textContent = on ? "Ocultar respuesta" : "Revelar respuesta";
+      bt.className = on ? "btn" : "btn sol";
+    }
+    bt.addEventListener("click",function(){
+      st.revelados[i]=!st.revelados[i]; pinta(); guardar(); refrescar();
+      if(st.revelados[i]) timbrar(ver.querySelector(".sello"));
+    });
+    pinta();
+    cont.appendChild(d);
+  });
+}
+function revelados(){ var n=0; RONDAS.forEach(function(r,i){ if(st.revelados[i]) n++; }); return n; }
+
+/* ================= CREA ================= */
+function pintaCreaEj(despues){
+  $("ejemploCrea").textContent = despues ? DESPUES : ANTES;
+  $("tAntes").setAttribute("aria-pressed", despues?"false":"true");
+  $("tDespues").setAttribute("aria-pressed", despues?"true":"false");
+}
+$("tAntes").addEventListener("click",function(){ pintaCreaEj(false); });
+$("tDespues").addEventListener("click",function(){ pintaCreaEj(true); });
+IA_TEORIA.forEach(function(k){
+  var x=IA[k], d=document.createElement("div"); d.className="iacard";
+  d.innerHTML='<div class="logo" style="background:'+x.color+'">'+x.n.charAt(0)+'</div><b>'+x.n+'</b><span>'+x.por+'</span>';
+  $("ias").appendChild(d);
+});
+
+/* ================= animal ================= */
+var AN_EJ={an_nom:"Timbrillo",an_cuerpo:"quirquincho y búho",an_rasgo:"su caparazón son carpetas de colores apiladas y tiene anteojos de lectura",an_lugar:"una oficina pública antigua, de noche",an_accion:"timbrando documentos con la cola"};
+function promptAnimal(){
+  if(!v("an_cuerpo") && !v("an_rasgo") && !v("an_nom")) return "";
+  var t="Genera una imagen de un animal que no existe";
+  if(v("an_nom")) t+=", llamado "+v("an_nom");
+  t+=".";
+  if(v("an_cuerpo")) t+=" Es una mezcla de "+v("an_cuerpo")+".";
+  if(v("an_rasgo")) t+=" Su rasgo más distintivo: "+v("an_rasgo")+".";
+  if(v("an_lugar")) t+=" Está en "+v("an_lugar")+".";
+  if(v("an_accion")) t+=" Está "+v("an_accion")+".";
+  t+=" Estilo: "+v("an_estilo")+". Encuadre y luz: "+v("an_luz")+". Sin texto ni letras dentro de la imagen.";
+  return t;
+}
+$("anEjemplo").addEventListener("click",function(){ Object.keys(AN_EJ).forEach(function(k){ $(k).value=AN_EJ[k]; }); refrescar(); });
+$("anVaciar").addEventListener("click",function(){ Object.keys(AN_EJ).forEach(function(k){ $(k).value=""; }); refrescar(); });
+$("anCopiar").addEventListener("click",function(){ copiar(promptAnimal(),this,"Copiado"); });
+
+/* ================= retos ================= */
+function retoActual(){ for(var i=0;i<RETOS.length;i++){ if(RETOS[i].id===st.reto) return RETOS[i]; } return null; }
+function pintaRetos(){
+  var c=$("retos"); c.textContent="";
+  RETOS.forEach(function(r){
+    var b=document.createElement("button"); b.type="button"; b.className="reto"+(r.bonus?" bonus":"");
+    b.setAttribute("aria-pressed", st.reto===r.id?"true":"false");
+    b.innerHTML='<span class="ic">'+r.ic+'</span><span><b></b><span></span></span><span class="pill">'+IA[r.ia].n+'</span>';
+    b.querySelector("b").textContent=r.t; b.querySelector("span span").textContent=r.s;
+    b.addEventListener("click",function(){ st.reto=r.id; pintaRetos(); pintaReto(); guardar(); refrescar();
+      setTimeout(function(){ var d=$("retoDetalle"); if(d.scrollIntoView) d.scrollIntoView({behavior:"smooth",block:"start"}); },60); });
+    c.appendChild(b);
+  });
+}
+function pintaReto(){
+  var r=retoActual(), d=$("retoDetalle"); d.textContent="";
+  if(!r){ var p=document.createElement("p"); p.className="meta"; p.textContent="Elige un reto para ver el prompt."; d.appendChild(p); return; }
+  var x=IA[r.ia];
+  var html=
+   '<div class="card"><h3><span class="num">1</span>El prompt</h3><div class="salida" id="rPrompt"></div></div>'+
+   '<div class="card"><h3><span class="num">2</span>'+(r.id==="postits"?"La dinámica":"El insumo (ficticio)")+'</h3><div class="insumo" id="rInsumo"></div></div>'+
+   '<div class="card"><h3><span class="num">3</span>Cópialo y pégalo</h3>'+
+     '<p class="meta" style="margin:0 0 12px">Recomendada: <b>'+x.n+'</b>, porque '+x.por.charAt(0).toLowerCase()+x.por.slice(1)+'</p>'+
+     '<div class="row"><button type="button" class="btn sol" id="rCopiar">'+(r.id==="postits"?"Copiar prompt":"Copiar prompt + insumo")+'</button>'+
+     '<a class="btn ia" data-rec="1" href="'+x.url+'" target="_blank" rel="noopener">Abrir '+x.n+'</a></div></div>'+
+   '<div class="card"><h3><span class="num">4</span>Segunda vuelta</h3><p class="meta" style="margin:0 0 10px">En la misma conversación, pega esto:</p><div class="salida" id="rVuelta"></div>'+
+     '<div class="row" style="margin-top:12px"><button type="button" class="btn sm" id="rCopiarV">Copiar segunda vuelta</button></div></div>'+
+   '<div class="card ok"><h3>Lo que tienes que mirar</h3><p id="rMira" style="margin:0 0 12px"></p>'+
+     '<label class="check"><input type="checkbox" id="rHecho"> Lo ejecuté y revisé el resultado.</label></div>';
+  d.innerHTML=html;
+  $("rPrompt").textContent=r.prompt;
+  $("rInsumo").textContent=r.insumo;
+  $("rVuelta").textContent=r.vuelta;
+  $("rMira").textContent=r.mira;
+  $("rHecho").checked=!!st.retoHecho[r.id];
+  $("rHecho").addEventListener("change",function(){ st.retoHecho[r.id]=this.checked; guardar(); refrescar(); });
+  $("rCopiar").addEventListener("click",function(){ copiar(r.id==="postits" ? r.prompt : r.prompt+"\n\n---\n\n"+r.insumo, this, "Copiado"); });
+  $("rCopiarV").addEventListener("click",function(){ copiar(r.vuelta,this,"Copiada"); });
+}
+
+/* ================= tu problema ================= */
+TIPOS.forEach(function(t){ var o=document.createElement("option"); o.value=t.v; o.textContent=t.t; $("tipo").appendChild(o); });
+(function(){ var o=document.createElement("option"); o.value=""; o.textContent="Elige el tipo de tarea"; $("tipo").insertBefore(o,$("tipo").firstChild); $("tipo").value=""; })();
+function tipoSugerido(){
+  var p=v("prob"); if(!p) return "";
+  for(var i=0;i<PALABRAS.length;i++){ if(PALABRAS[i][1].test(p)) return PALABRAS[i][0]; }
+  return "";
+}
+function tipoActual(){ var t=v("tipo")||tipoSugerido(); for(var i=0;i<TIPOS.length;i++){ if(TIPOS[i].v===t) return TIPOS[i]; } return null; }
+function pintaRecomendacion(){
+  var t=tipoActual(), el=$("recomendacion");
+  if(!t){ el.textContent="Elige el tipo de tarea y te recomendamos una herramienta."; }
+  else {
+    var auto = !v("tipo");
+    el.innerHTML='';
+    var s=document.createElement("span");
+    s.innerHTML=(auto?"Por lo que escribiste, te sugerimos ":"Te recomendamos ")+'<b>'+IA[t.ia].n+'</b>, porque '+t.por+'.'+(auto?" Si no calza, cambia el tipo de tarea.":"");
+    el.appendChild(s);
+  }
+  var bot=$("botonesIA");
+  Array.prototype.slice.call(bot.querySelectorAll("a")).forEach(function(a){ bot.removeChild(a); });
+  var orden = t ? [t.ia] : [];
+  ["claude","chatgpt","gemini","notebooklm","copilot"].forEach(function(k){ if(orden.indexOf(k)<0) orden.push(k); });
+  orden.slice(0,4).forEach(function(k,i){
+    var a=document.createElement("a"); a.className="btn ia"; a.href=IA[k].url; a.target="_blank"; a.rel="noopener";
+    a.textContent=IA[k].n; if(t && i===0) a.dataset.rec="1"; bot.appendChild(a);
+  });
+}
+function entrarTuyo(){
+  var p=v("prob");
+  $("tuProblemaTxt").textContent = p || "Todavía no escribiste tu problema. Vuelve al inicio y escríbelo: de ahí parte este ejercicio.";
+  if(p && (!v("c") || st.cAuto)){
+    var quien=[];
+    if(v("donde")) quien.push("Trabajo en "+v("donde"));
+    if(v("cargo")) quien.push((quien.length?", en ":"Trabajo en ")+v("cargo"));
+    var base=(quien.length? quien.join("")+". " : "")+p;
+    if(v("frec")) base+=" Esta tarea la hago "+v("frec").toLowerCase();
+    if(v("tiempo")) base+=(v("frec")?" y me toma ":" Me toma ")+v("tiempo").toLowerCase();
+    if(v("frec")||v("tiempo")) base+=".";
+    $("c").value=base; st.cAuto=true; crecer($("c"));
+  }
+  refrescar();
+}
+function armarPrompt(){
+  var p=[];
+  if(v("c")) p.push("CONTEXTO: "+v("c"));
+  if(v("r")) p.push("ROL: "+v("r"));
+  if(v("e")) p.push("ESPECIFICACIONES: "+v("e"));
+  if(v("a")) p.push("ACCIÓN: "+v("a"));
+  if(!p.length) return "";
+  var extra=[];
+  if($("k_noinv").checked) extra.push("No inventes datos, cifras ni normas. Si algo no lo sabes o no está en lo que te doy, dilo.");
+  if($("k_vers").checked) extra.push("Dame dos versiones distintas para elegir.");
+  if($("k_preg").checked) extra.push("Si te falta información para hacerlo bien, pregúntame antes de responder.");
+  if(extra.length) p.push(extra.join("\n"));
+  return p.join("\n\n");
+}
+$("copiarPrompt").addEventListener("click",function(){ copiar(armarPrompt(),this,"Copiado"); });
+$("c").addEventListener("input",function(){ st.cAuto=false; });
+
+/* ================= herramientas ================= */
+IA_HERR.forEach(function(k){
+  var x=IA[k], d=document.createElement("div"); d.className="h";
+  d.innerHTML='<div class="top2"><b></b><span class="cat"></span></div><p></p><a target="_blank" rel="noopener">Abrir →</a>';
+  d.querySelector("b").textContent=x.n; d.querySelector(".cat").textContent=x.cat; d.querySelector("p").textContent=x.por; d.querySelector("a").href=x.url;
+  $("herr").appendChild(d);
+});
+
+/* ================= kit ================= */
+HACKS.forEach(function(h){ var li=document.createElement("li"); li.innerHTML="<b></b> <span></span>"; li.querySelector("b").textContent=h[0]; li.querySelector("span").textContent=h[1]; $("hacks").appendChild(li); });
+PROMPTS.forEach(function(pr){
+  var d=document.createElement("div"); d.className="pr";
+  var b=document.createElement("b"); b.textContent=pr[0];
+  var t=document.createElement("p"); t.textContent=pr[1];
+  var bt=document.createElement("button"); bt.type="button"; bt.className="btn sm"; bt.textContent="Copiar";
+  bt.addEventListener("click",function(){ copiar(pr[1],bt,"Copiado"); });
+  d.appendChild(b); d.appendChild(t); d.appendChild(bt); $("listaPrompts").appendChild(d);
+});
+function hechos(){
+  var r=retoActual();
+  return {
+    inicio: !!v("prob"),
+    competencias: !!v("d4"),
+    dinamica: revelados()===RONDAS.length,
+    crea: !!st.vistos.crea,
+    animal: !!promptAnimal(),
+    reto: !!(r && st.retoHecho[r.id]),
+    tuyo: !!(v("c") && v("a")),
+    semaforo: !!(v("s1")||v("s2")||v("s3")||v("comp1")),
+    herramientas: !!st.vistos.herramientas,
+    kit: false
+  };
+}
+function pintaLogros(){
+  var h=hechos(), r=retoActual();
+  var L=[
+    ["Tu problema, por escrito", h.inicio ? v("prob") : "Todavía sin escribir", h.inicio],
+    ["Tu animal que no existe", v("an_nom") ? v("an_nom") : (h.animal?"Prompt de imagen listo":"Sin crear"), h.animal],
+    ["Tu competencia a entrenar", v("d4") || "Sin elegir", h.competencias],
+    ["Ojo de revisor", h.dinamica ? "Las 3 rondas de ¿aprobado o devuelto?" : "Dinámica sin terminar", h.dinamica],
+    ["Un reto del Estado", r ? r.t : "Sin elegir", h.reto],
+    ["Tu prompt con CREA", h.tuyo ? "Listo para usar de nuevo" : "Sin completar", h.tuyo],
+    ["Tu semáforo y tu compromiso", v("comp1") ? ("El lunes: "+v("comp1")) : (h.semaforo?"Completado":"Sin completar"), h.semaforo]
+  ];
+  var c=$("logros"); c.textContent="";
+  L.forEach(function(l){
+    var d=document.createElement("div"); d.className="logro"; d.dataset.ok=l[2]?"1":"0";
+    d.innerHTML='<div class="tick">✓</div><div><b></b><span></span></div>';
+    d.querySelector("b").textContent=l[0]; d.querySelector("span").textContent=l[1];
+    c.appendChild(d);
+  });
+  $("kitTitulo").textContent = v("nom") ? (v("nom").split(" ")[0]+", esto es lo que hiciste hoy.") : "Lo que hiciste hoy.";
+}
+function textoCompleto(){
+  var r=retoActual();
+  var t="LABORATORIO DE PROMPTS PARA EL ESTADO · MI KIT\nIvonne Ayala · 8° Encuentro de Innovación Pública · Santiago, 2 de diciembre de 2026\n";
+  if(v("nom")) t+="Participante: "+v("nom")+"\n";
+  t+="\n1. MI PROBLEMA\n"+(v("prob")||"(sin completar)")+"\n";
+  t+="\n2. LA COMPETENCIA QUE VOY A ENTRENAR\n"+(v("d4")||"(sin elegir)")+"\n";
+  t+="\n3. LAS 4 COMPETENCIAS\nDelegación: decidir qué le entrego a la IA y qué no.\nDescripción: pedir con claridad.\nDiscernimiento: evaluar lo que devuelve.\nDiligencia: hacerme responsable del resultado.\n";
+  t+="\n4. MI ANIMAL QUE NO EXISTE\n"+(promptAnimal()||"(sin crear)")+"\n";
+  t+="\n5. RETO DEL ESTADO\n"+(r ? (r.t+"\n\n"+r.prompt+"\n\nSegunda vuelta: "+r.vuelta) : "(sin elegir)")+"\n";
+  t+="\n6. MI PROMPT CON CREA\n"+(armarPrompt()||"(sin completar)")+"\n";
+  var tp=tipoActual(); if(tp) t+="\nHerramienta recomendada: "+IA[tp.ia].n+"\n";
+  t+="\n7. MI SEMÁFORO\nDelegable: "+(v("s1")||"-")+"\nCon revisión: "+(v("s2")||"-")+"\nIndelegable: "+(v("s3")||"-")+"\n";
+  t+="\nMI COMPROMISO\nEl lunes voy a usar la IA para: "+(v("comp1")||"-")+"\nNunca voy a delegar en la IA: "+(v("comp2")||"-")+"\n";
+  t+="\nLa pregunta para llevarme: ¿esto me está ayudando, o me estoy auto-reemplazando?\n";
+  t+="\n8. CINCO HACKS\n"+HACKS.map(function(h,i){ return (i+1)+". "+h[0]+" "+h[1]; }).join("\n")+"\n";
+  t+="\n9. DIEZ PROMPTS BASE PARA EL ESTADO\n"+PROMPTS.map(function(p,i){ return (i+1)+". "+p[0]+"\n"+p[1]; }).join("\n\n")+"\n";
+  t+="\n10. HERRAMIENTAS\n"+IA_HERR.map(function(k){ return IA[k].n+" ("+IA[k].url+"): "+IA[k].por; }).join("\n")+"\n";
+  t+="\nRegla de oro: no ingreses datos personales ni información reservada en herramientas no autorizadas por tu servicio.\n";
+  return t;
+}
+$("copiarTodo").addEventListener("click",function(){ copiar(textoCompleto(),this,"Todo copiado"); });
+$("imprimir").addEventListener("click",function(){ try{ window.print(); }catch(e){} });
+$("descargar").addEventListener("click",function(){
+  var b=this;
+  try{
+    var blob=new Blob([textoCompleto()],{type:"text/plain;charset=utf-8"});
+    var url=URL.createObjectURL(blob), a=document.createElement("a");
+    a.href=url; a.download="mi-kit-laboratorio-de-prompts.txt"; document.body.appendChild(a); a.click();
+    setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); },500);
+  }catch(e){ copiar(textoCompleto(),b,"No se pudo descargar: lo copié"); }
+});
+var borrarArmado=false;
+$("borrar").addEventListener("click",function(){
+  if(!borrarArmado){ borrarArmado=true; this.textContent="¿Seguro? Toca otra vez para borrar"; var b=this; setTimeout(function(){ borrarArmado=false; b.textContent="Borrar mis datos de este dispositivo"; },4000); return; }
+  try{ localStorage.removeItem(KEY); }catch(e){}
+  try{ history.replaceState(null,"",location.pathname); }catch(e){}
+  location.reload();
+});
+
+/* ================= refresco ================= */
+function pinta(el,txt,vacio){
+  var e=$(el);
+  if(txt){ e.textContent=txt; e.classList.remove("vacio"); } else { e.textContent=vacio; e.classList.add("vacio"); }
+}
+function refrescar(){
+  pinta("anPrompt", promptAnimal(), "Describe tu animal y el prompt se arma aquí.");
+  var p=armarPrompt();
+  pinta("preview", p, "Completa los campos de arriba y tu prompt se arma aquí.");
+  var w=p?p.split(/\s+/).length:0;
+  $("contador").textContent = w ? (w+" palabras · "+(w<60?"todavía le falta contexto para rendir bien":"listo para pegar en cualquier herramienta")) : "";
+  pintaRecomendacion();
+  var h=hechos();
+  PASOS.forEach(function(ps,i){ $("nav").children[i].dataset.ok = h[ps.id] ? "1":"0"; });
+  if(v("prob")){ var s=$("selloInicio"); if(s.textContent!=="En trámite"){ s.textContent="En trámite"; s.className="sello ambar"; timbrar(s); } }
+  else { $("selloInicio").textContent="Ingresado"; $("selloInicio").className="sello rojo"; }
+  pintaLogros();
+  guardar();
+}
+
+/* ================= guardado ================= */
+var tG;
+function guardar(){
+  try{
+    var d={paso:actual, revelados:st.revelados, reto:st.reto, retoHecho:st.retoHecho, cAuto:st.cAuto, vistos:st.vistos};
+    CAMPOS.forEach(function(id){ d[id]=$(id).value; });
+    CASILLAS.forEach(function(id){ d[id]=$(id).checked; });
+    localStorage.setItem(KEY, JSON.stringify(d));
+    $("guardado").textContent="Guardado en este dispositivo";
+    clearTimeout(tG); tG=setTimeout(function(){ $("guardado").textContent="Se guarda solo en este dispositivo"; },1500);
+  }catch(e){ $("guardado").textContent="Copia tu kit al final: este navegador no guarda"; }
+}
+function cargar(){
+  try{
+    var raw=localStorage.getItem(KEY); if(!raw) return null;
+    var d=JSON.parse(raw);
+    CAMPOS.forEach(function(id){ if(typeof d[id]==="string" && d[id]!=="") $(id).value=d[id]; });
+    CASILLAS.forEach(function(id){ if(typeof d[id]==="boolean") $(id).checked=d[id]; });
+    if(d.revelados) st.revelados=d.revelados;
+    if(d.reto) st.reto=d.reto;
+    if(d.retoHecho) st.retoHecho=d.retoHecho;
+    st.cAuto=!!d.cAuto;
+    if(d.vistos) st.vistos=d.vistos;
+    return d;
+  }catch(e){ return null; }
+}
+
+/* ================= copiar ================= */
+function copiar(texto,boton,ok){
+  if(!texto){ var o0=boton.textContent; boton.textContent="Primero completa los campos"; setTimeout(function(){ boton.textContent=o0; },1800); return; }
+  var orig=boton.textContent;
+  function fin(){ boton.textContent=ok; setTimeout(function(){ boton.textContent=orig; },1800); }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(texto).then(fin,function(){ respaldo(texto,boton,orig,ok); });
+  } else respaldo(texto,boton,orig,ok);
+}
+function respaldo(texto,boton,orig,ok){
+  var ta=document.createElement("textarea"); ta.value=texto; ta.setAttribute("readonly",""); ta.style.position="fixed"; ta.style.top="0"; ta.style.opacity="0";
+  document.body.appendChild(ta); ta.select(); try{ ta.setSelectionRange(0,texto.length); }catch(e){}
+  var bien=false; try{ bien=document.execCommand("copy"); }catch(e){}
+  document.body.removeChild(ta);
+  boton.textContent = bien ? ok : "Mantén presionado el texto para copiar";
+  setTimeout(function(){ boton.textContent=orig; },2200);
+}
+
+/* ================= eventos y arranque ================= */
+function crecer(el){ el.style.height="auto"; el.style.height=Math.max(el.scrollHeight,(el.rows||2)*27+26)+"px"; }
+CAMPOS.forEach(function(id){ var el=$(id); el.addEventListener(el.tagName==="SELECT"?"change":"input", refrescar); });
+CASILLAS.forEach(function(id){ $(id).addEventListener("change", refrescar); });
+Array.prototype.forEach.call(document.querySelectorAll("textarea"),function(el){ el.addEventListener("input",function(){ crecer(el); }); });
+
+var g=cargar();
+pintaRondas(); pintaCreaEj(false); pintaRetos(); pintaReto();
+refrescar();
+Array.prototype.forEach.call(document.querySelectorAll("textarea"),crecer);
+if(!aplicarHash()) ir(g && typeof g.paso==="number" ? g.paso : 0, true);
+
+ajustarTop(); window.addEventListener("resize",ajustarTop);
+if(document.fonts && document.fonts.ready){ document.fonts.ready.then(ajustarTop); }
+})();
+</script>
+</body>
+</html>
