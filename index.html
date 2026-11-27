@@ -105,6 +105,7 @@ textarea:focus,input[type=text]:focus,select:focus{border-color:var(--tinta);box
 select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--tinta-2) 50%),linear-gradient(135deg,var(--tinta-2) 50%,transparent 50%);
   background-position:calc(100% - 21px) 52%,calc(100% - 15px) 52%;background-size:6px 6px;background-repeat:no-repeat;padding-right:42px}
 .dos{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.dos{margin-bottom:17px}.dos:last-child{margin-bottom:0}
 @media (max-width:520px){.dos{grid-template-columns:1fr}}
 details.ayuda{margin-top:8px}
 details.ayuda summary{font-size:.86rem;color:var(--cielo);cursor:pointer;font-weight:700;list-style:none;display:inline-flex;gap:7px;align-items:center}
@@ -536,7 +537,7 @@ ol.hacks li::marker{color:var(--coral);font-weight:700;font-family:var(--disp)}
 <!-- ================= 5. EJERCICIO 1: RETO ================= -->
 <section class="paso" id="reto" hidden>
   <header>
-    <div class="oficio"><b>ORD. N° 05</b><br>ANT.: Tareas reales del Estado<br>MAT.: Ejercicio 1. Elige tu reto<br><span class="min">10 min</span></div>
+    <div class="oficio"><b>ORD. N° 05</b><br>ANT.: Tareas reales del Estado<br>MAT.: Ejercicio 1. Elige tu reto<br><span class="min">8 min</span></div>
     <h2>Un reto del Estado, <em>listo para correr.</em></h2>
   </header>
   <p class="sub">Elige uno. El prompt ya está armado con CREA y el insumo es un ejemplo ficticio. Cópialo, pégalo en la IA recomendada y mira qué pasa. Si terminas rápido, haz la segunda vuelta.</p>
@@ -547,9 +548,75 @@ ol.hacks li::marker{color:var(--coral);font-weight:700;font-family:var(--disp)}
 </section>
 
 <!-- ================= 6. EJERCICIO 2: TU PROBLEMA ================= -->
+<section class="paso" id="expediente" hidden>
+  <header>
+    <div class="oficio"><b>ORD. N° 06</b><br>ANT.: El reto que acabas de correr<br>MAT.: El expediente de tu servicio<br><span class="min">5 min</span></div>
+    <h2>Que la IA te conozca <em>una sola vez.</em></h2>
+  </header>
+  <p class="sub">Si cada vez tienes que explicarle dónde trabajas, vas a dejar de usarla a la tercera semana. Tu expediente se escribe una vez y se usa en todo lo demás.</p>
+
+  <div class="card">
+    <h3><span class="num">1</span>Llena tu expediente</h3>
+    <div class="dos">
+      <div class="field"><label class="lab" for="ex_serv">Servicio o institución</label><input type="text" id="ex_serv" placeholder="Ej.: Municipalidad de…"></div>
+      <div class="field"><label class="lab" for="ex_unidad">Tu unidad o equipo</label><input type="text" id="ex_unidad" placeholder="Ej.: Oficina de Rentas y Patentes"></div>
+    </div>
+    <div class="field"><label class="lab" for="ex_que">Qué hace tu unidad y a quién atiende</label><textarea id="ex_que" rows="2" placeholder="Ej.: Tramitamos patentes comerciales. Atendemos a emprendedores y comerciantes de la comuna, muchos sin experiencia en trámites."></textarea></div>
+    <div class="field"><label class="lab" for="ex_norma">Normativa o documentos que guían tu trabajo</label><textarea id="ex_norma" rows="2" placeholder="Ej.: Ordenanza municipal de patentes, Ley de Rentas Municipales, manual interno de atención."></textarea></div>
+    <div class="field">
+      <label class="lab" for="ex_formato">Cómo se ve un buen documento tuyo <small>(pega un ejemplo, sin datos de personas)</small></label>
+      <textarea id="ex_formato" rows="3" placeholder="Ej.: pega aquí una respuesta o un oficio que te haya quedado bien, borrando nombres y RUT."></textarea>
+    </div>
+    <div class="dos">
+      <div class="field"><label class="lab" for="ex_tono">El tono de tu servicio</label><input type="text" id="ex_tono" placeholder="Ej.: formal pero cercano, sin tecnicismos"></div>
+      <div class="field">
+        <label class="lab" for="ex_donde">Dónde lo vas a guardar</label>
+        <select id="ex_donde">
+          <option value="">Elige</option>
+          <option>Un Proyecto en Claude</option>
+          <option>Un Proyecto en ChatGPT</option>
+          <option>Un cuaderno en Gemini</option>
+          <option>Un cuaderno en NotebookLM</option>
+          <option>Una conversación que dejo fijada</option>
+        </select>
+      </div>
+    </div>
+    <div class="field"><label class="lab" for="ex_nunca">Lo que nunca debe aparecer</label><input type="text" id="ex_nunca" placeholder="Nombres, RUT, datos de salud, info reservada"></div>
+  </div>
+
+  <div class="card">
+    <h3><span class="num">2</span>Tu expediente, listo</h3>
+    <div class="salida vacio" id="exPrompt"></div>
+    <div class="row no-print" style="margin-top:13px">
+      <button type="button" class="btn sol" id="exCopiar">Copiar expediente</button>
+    </div>
+    <p class="meta" style="margin:12px 0 0">Pégalo al inicio de una conversación nueva, en tu Proyecto o en tu cuaderno de Gemini.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="num">3</span>Pruébalo</h3>
+    <p style="margin:0 0 10px">Después de pegarlo, pregúntale:</p>
+    <div class="salida" id="exPrueba"></div>
+    <div class="row no-print" style="margin-top:13px"><button type="button" class="btn sm" id="exCopiarPrueba">Copiar pregunta</button></div>
+  </div>
+
+  <div class="card tinta">
+    <h3>Además del texto, súbele documentos</h3>
+    <p>Tu expediente puede tener archivos: bases, normativa, formatos, manuales o informes ya publicados.</p>
+    <ul style="margin:0 0 12px;padding-left:20px">
+      <li><b>En cualquier chat:</b> adjunta el PDF o Word con el clip, junto a tu pregunta.</li>
+      <li><b>Claude y ChatGPT:</b> crea un Proyecto y sube los documentos como conocimiento. Quedan para todas tus conversaciones.</li>
+      <li><b>Gemini:</b> crea un cuaderno y súbele tus documentos con «Añadir fuentes». Tu expediente también puede ir ahí, como documento.</li>
+      <li><b>NotebookLM:</b> sube los documentos como fuentes. Responde solo con ellos y te dice de dónde sacó cada cosa.</li>
+    </ul>
+    <p style="margin:0"><b>Solo documentos públicos o internos sin datos de personas.</b></p>
+    <div class="row no-print" id="guias" style="margin-top:14px"></div>
+  </div>
+</section>
+
 <section class="paso" id="tuyo" hidden>
   <header>
-    <div class="oficio"><b>ORD. N° 06</b><br>ANT.: Tu problema del inicio<br>MAT.: Ejercicio 2. Ahora va lo tuyo<br><span class="min">15 min</span></div>
+    <div class="oficio"><b>ORD. N° 07</b><br>ANT.: Tu problema y tu expediente<br>MAT.: Ejercicio 2. Ahora va lo tuyo<br><span class="min">15 min</span></div>
     <h2>Ahora resolvemos <em>tu</em> problema.</h2>
   </header>
 
@@ -634,7 +701,7 @@ ol.hacks li::marker{color:var(--coral);font-weight:700;font-family:var(--disp)}
 <!-- ================= 7. SEMÁFORO ================= -->
 <section class="paso" id="semaforo" hidden>
   <header>
-    <div class="oficio"><b>ORD. N° 07</b><br>ANT.: Todo lo que hiciste hoy<br>MAT.: Tu semáforo y tu compromiso<br><span class="min">4 min</span></div>
+    <div class="oficio"><b>ORD. N° 08</b><br>ANT.: Todo lo que hiciste hoy<br>MAT.: Tu semáforo y tu compromiso<br><span class="min">4 min</span></div>
     <h2>¿Qué le entregas a la IA, <em>y qué nunca?</em></h2>
   </header>
   <p class="sub">Tres tareas tuyas, cada una donde corresponde. La tercera columna es la que te hace insustituible.</p>
@@ -662,7 +729,7 @@ ol.hacks li::marker{color:var(--coral);font-weight:700;font-family:var(--disp)}
 <!-- ================= 8. HERRAMIENTAS ================= -->
 <section class="paso" id="herramientas" hidden>
   <header>
-    <div class="oficio"><b>ORD. N° 08</b><br>ANT.: ¿Qué IA para qué?<br>MAT.: Herramientas recomendadas<br><span class="min">Para llevar</span></div>
+    <div class="oficio"><b>ORD. N° 09</b><br>ANT.: ¿Qué IA para qué?<br>MAT.: Herramientas recomendadas<br><span class="min">Para llevar</span></div>
     <h2>Tu caja de <em>herramientas.</em></h2>
   </header>
   <p class="sub">Todas tienen una versión gratuita para empezar. Antes de usarlas con información del trabajo, confirma qué permite tu servicio.</p>
@@ -676,7 +743,7 @@ ol.hacks li::marker{color:var(--coral);font-weight:700;font-family:var(--disp)}
 <!-- ================= 9. KIT ================= -->
 <section class="paso" id="kit" hidden>
   <header>
-    <div class="oficio"><b>ORD. N° 09</b><br>ANT.: Tu problema del inicio<br>MAT.: Tu kit para llevar<br><span class="min">2 min</span></div>
+    <div class="oficio"><b>ORD. N° 10</b><br>ANT.: Tu problema del inicio<br>MAT.: Tu kit para llevar<br><span class="min">2 min</span></div>
     <h2 id="kitTitulo">Lo que hiciste hoy.</h2>
   </header>
   <div style="margin:14px 0 22px"><span class="sello verde" id="selloKit">Resuelto</span></div>
@@ -739,6 +806,7 @@ var PASOS = [
   {id:"dinamica",     nom:"¿Aprobado o devuelto?"},
   {id:"crea",         nom:"CREA"},
   {id:"reto",         nom:"Reto del Estado"},
+  {id:"expediente",   nom:"Tu expediente"},
   {id:"tuyo",         nom:"Tu problema"},
   {id:"semaforo",     nom:"Semáforo"},
   {id:"herramientas", nom:"Herramientas"},
@@ -850,6 +918,7 @@ var PROMPTS = [
 
 /* ================= estado ================= */
 var CAMPOS = ["nom","donde","cargo","prob","frec","tiempo","d4",
+  "ex_serv","ex_unidad","ex_que","ex_norma","ex_formato","ex_tono","ex_donde","ex_nunca",
   "an_nom","an_cuerpo","an_rasgo","an_lugar","an_accion","an_estilo","an_luz",
   "tipo","c","r","e","a","nota","s1","s2","s3","comp1","comp2"];
 var CASILLAS = ["k_preg","k_noinv","k_vers","dil1","dil2","dil3","dis1","dis2","dis3","dis4"];
@@ -925,15 +994,41 @@ function pintaRondas(){
       bt.textContent = on ? "Ocultar respuesta" : "Revelar respuesta";
       bt.className = on ? "btn" : "btn sol";
     }
-    bt.addEventListener("click",function(){
+    var lock=document.createElement("div"); lock.className="row"; lock.style.marginTop="10px"; lock.hidden=true;
+    lock.innerHTML='<input type="text" autocomplete="off" placeholder="Clave de la facilitadora" style="flex:1;min-width:160px"><button type="button" class="btn sol">Abrir</button>';
+    var msg=document.createElement("p"); msg.className="meta"; msg.style.margin="8px 0 0"; msg.hidden=true;
+    bt.after(lock); lock.after(msg);
+    function intentar(){
+      var inp=lock.querySelector("input");
+      if(claveOk(inp.value)){ desbloquear(); lock.hidden=true; msg.hidden=true; revelar(); }
+      else { msg.hidden=false; msg.textContent="Esa no es. La respuesta la revela Ivonne en pantalla."; inp.select(); }
+    }
+    lock.querySelector("button").addEventListener("click",intentar);
+    lock.querySelector("input").addEventListener("keydown",function(e){ if(e.key==="Enter") intentar(); });
+    function revelar(){
       st.revelados[i]=!st.revelados[i]; pinta(); guardar(); refrescar();
       if(st.revelados[i]) timbrar(ver.querySelector(".sello"));
+    }
+    bt.addEventListener("click",function(){
+      if(!st.revelados[i] && !desbloqueado()){ lock.hidden=false; lock.querySelector("input").focus(); return; }
+      revelar();
     });
     pinta();
     cont.appendChild(d);
   });
 }
 function revelados(){ var n=0; RONDAS.forEach(function(r,i){ if(st.revelados[i]) n++; }); return n; }
+/* Clave de la facilitadora: para cambiarla, calcula el hash djb2-xor de la nueva clave en minúsculas
+   y reemplaza CLAVE_HASH. Es un candado de sala, no seguridad real. */
+var CLAVE_HASH = 165328765;
+function claveOk(x){
+  var h=5381, s=(x||"").trim().toLowerCase();
+  for(var k=0;k<s.length;k++){ h=(((h*33)>>>0)^s.charCodeAt(k))>>>0; }
+  return h===CLAVE_HASH;
+}
+var _desb=false;
+function desbloqueado(){ if(_desb) return true; try{ return sessionStorage.getItem(KEY+"-clave")==="1"; }catch(e){ return false; } }
+function desbloquear(){ _desb=true; try{ sessionStorage.setItem(KEY+"-clave","1"); }catch(e){} }
 
 /* ================= CREA ================= */
 function pintaCreaEj(despues){
@@ -1035,14 +1130,53 @@ function pintaRecomendacion(){
     a.textContent=IA[k].n; if(t && i===0) a.dataset.rec="1"; bot.appendChild(a);
   });
 }
+/* ================= expediente ================= */
+var GUIAS = [
+  /* Cambia listo a true cuando subas cada guía al repo, con ese mismo nombre de archivo. */
+  {t:"Proyecto en Claude",    url:"guia-claude.html",     listo:true},
+  {t:"Proyecto en ChatGPT",   url:"guia-chatgpt.html",    listo:true},
+  {t:"Cuaderno en Gemini",    url:"guia-gemini.html",     listo:true},
+  {t:"Cuaderno en NotebookLM",url:"guia-notebooklm.html", listo:false}
+];
+GUIAS.forEach(function(g){
+  if(!g.listo) return;
+  var a=document.createElement("a"); a.className="btn sm"; a.href=g.url; a.target="_blank"; a.rel="noopener";
+  a.style.background="transparent"; a.style.color="#fff"; a.style.borderColor="rgba(255,255,255,.35)";
+  a.textContent="Guía: "+g.t; $("guias").appendChild(a);
+});
+var PRUEBA="¿Qué sabes de mí y de mi servicio? Resúmelo en 5 líneas y dime qué información te falta para ayudarme mejor.";
+$("exPrueba").textContent=PRUEBA;
+function armarExpediente(){
+  if(!(v("ex_serv")||v("ex_unidad")||v("ex_que")||v("ex_norma")||v("ex_formato")||v("ex_tono"))) return "";
+  var t="EXPEDIENTE DE MI TRABAJO\nUsa esta información como contexto en todo lo que te pida.\n";
+  if(v("ex_serv")) t+="\nServicio o institución: "+v("ex_serv");
+  if(v("ex_unidad")) t+="\nMi unidad: "+v("ex_unidad");
+  if(v("ex_que")) t+="\nQué hacemos y a quién atendemos: "+v("ex_que");
+  if(v("ex_norma")) t+="\nNormativa y documentos que guían nuestro trabajo: "+v("ex_norma");
+  if(v("ex_tono")) t+="\nTono de nuestras comunicaciones: "+v("ex_tono");
+  if(v("ex_formato")) t+="\n\nEjemplo de un documento nuestro que está bien hecho:\n"+v("ex_formato");
+  t+="\n\nLo que nunca debe aparecer en lo que redactes: "+(v("ex_nunca")||"nombres, RUT, direcciones, datos de salud ni información reservada")+".";
+  t+="\nSi para lo que te pida te falta información de este expediente, pregúntame antes de responder.";
+  return t;
+}
+$("exCopiar").addEventListener("click",function(){ copiar(armarExpediente(),this,"Copiado"); });
+$("exCopiarPrueba").addEventListener("click",function(){ copiar(PRUEBA,this,"Copiada"); });
+
 function entrarTuyo(){
   var p=v("prob");
   $("tuProblemaTxt").textContent = p || "Todavía no escribiste tu problema. Vuelve al inicio y escríbelo: de ahí parte este ejercicio.";
   if(p && (!v("c") || st.cAuto)){
     var quien=[];
-    if(v("donde")) quien.push("Trabajo en "+v("donde"));
-    if(v("cargo")) quien.push((quien.length?", en ":"Trabajo en ")+v("cargo"));
-    var base=(quien.length? quien.join("")+". " : "")+p;
+    if(v("ex_unidad")||v("ex_serv")){
+      quien.push("Trabajo en "+[v("ex_unidad"),v("ex_serv")].filter(Boolean).join(", "));
+    } else {
+      if(v("donde")) quien.push("Trabajo en "+v("donde"));
+      if(v("cargo")) quien.push((quien.length?", en ":"Trabajo en ")+v("cargo"));
+    }
+    var base=(quien.length? quien.join("")+". " : "");
+    if(v("ex_que")) base+=v("ex_que").replace(/\.?$/,". ");
+    if(v("ex_tono")) base+="Nuestro tono es "+v("ex_tono").replace(/\.$/,"")+". ";
+    base+=p;
     if(v("frec")) base+=" Esta tarea la hago "+v("frec").toLowerCase();
     if(v("tiempo")) base+=(v("frec")?" y me toma ":" Me toma ")+v("tiempo").toLowerCase();
     if(v("frec")||v("tiempo")) base+=".";
@@ -1094,6 +1228,7 @@ function hechos(){
     crea: !!st.vistos.crea,
     animal: !!promptAnimal(),
     reto: !!(r && st.retoHecho[r.id]),
+    expediente: !!(v("ex_serv") || v("ex_que")),
     tuyo: !!(v("c") && v("a")),
     semaforo: !!(v("s1")||v("s2")||v("s3")||v("comp1")),
     herramientas: !!st.vistos.herramientas,
@@ -1108,6 +1243,7 @@ function pintaLogros(){
     ["Tu competencia a entrenar", v("d4") || "Sin elegir", h.competencias],
     ["Ojo de revisor", h.dinamica ? "Las 3 rondas de ¿aprobado o devuelto?" : "Dinámica sin terminar", h.dinamica],
     ["Un reto del Estado", r ? r.t : "Sin elegir", h.reto],
+    ["Tu expediente", h.expediente ? ("Listo para guardar en "+(function(x){ return x.charAt(0).toLowerCase()+x.slice(1); })(v("ex_donde")||"tu herramienta")) : "Sin completar", h.expediente],
     ["Tu prompt con CREA", h.tuyo ? "Listo para usar de nuevo" : "Sin completar", h.tuyo],
     ["Tu semáforo y tu compromiso", v("comp1") ? ("El lunes: "+v("comp1")) : (h.semaforo?"Completado":"Sin completar"), h.semaforo]
   ];
@@ -1129,6 +1265,7 @@ function textoCompleto(){
   t+="\n3. LAS 4 COMPETENCIAS\nDelegación: decidir qué le entrego a la IA y qué no.\nDescripción: pedir con claridad.\nDiscernimiento: evaluar lo que devuelve.\nDiligencia: hacerme responsable del resultado.\n";
   t+="\n4. MI ANIMAL QUE NO EXISTE\n"+(promptAnimal()||"(sin crear)")+"\n";
   t+="\n5. RETO DEL ESTADO\n"+(r ? (r.t+"\n\n"+r.prompt+"\n\nSegunda vuelta: "+r.vuelta) : "(sin elegir)")+"\n";
+  t+="\nMI EXPEDIENTE\n"+(armarExpediente()||"(sin completar)")+"\n";
   t+="\n6. MI PROMPT CON CREA\n"+(armarPrompt()||"(sin completar)")+"\n";
   var tp=tipoActual(); if(tp) t+="\nHerramienta recomendada: "+IA[tp.ia].n+"\n";
   t+="\n7. MI SEMÁFORO\nDelegable: "+(v("s1")||"-")+"\nCon revisión: "+(v("s2")||"-")+"\nIndelegable: "+(v("s3")||"-")+"\n";
@@ -1166,6 +1303,7 @@ function pinta(el,txt,vacio){
 }
 function refrescar(){
   pinta("anPrompt", promptAnimal(), "Describe tu animal y el prompt se arma aquí.");
+  pinta("exPrompt", armarExpediente(), "Llena los campos y tu expediente se arma aquí.");
   var p=armarPrompt();
   pinta("preview", p, "Completa los campos de arriba y tu prompt se arma aquí.");
   var w=p?p.split(/\s+/).length:0;
